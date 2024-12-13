@@ -7,7 +7,7 @@ const Spacer = () => {
 
 const styles = StyleSheet.create({
   spacer: {
-    height: 80,
+    height: 100,
   },
 });
 
