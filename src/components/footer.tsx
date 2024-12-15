@@ -4,29 +4,37 @@ import Svg, {Path} from 'react-native-svg';
 
 const Footer: React.FC = () => {
   return (
-    <View style={styles.footer}>
-      <Image
-        source={require('../assets/images/team.png')}
-        style={styles.logo}
-      />
-      <Image
-        source={require('../assets/images/home.png')}
-        style={styles.logo}
-      />
-      <Image
-        source={require('../assets/images/settings.png')}
-        style={styles.logo}
-      />
+    <View style={styles.navigationBar}>
+      <View style={styles.footer}>
+        <Image
+          source={require('../assets/images/team.png')}
+          style={styles.logo}
+        />
+        <Image
+          source={require('../assets/images/home.png')}
+          style={styles.logo}
+        />
+        <Image
+          source={require('../assets/images/settings.png')}
+          style={styles.logo}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  footer: {
+  navigationBar: {
     width: '100%',
+    height: 80,
     position: 'absolute',
-    bottom: 0,
+    bottom: 8,
     left: 0,
+  },
+  footer: {
+    width: '95%',
+    borderRadius: 50,
+    margin: 'auto',
     backgroundColor: '#27272A',
     height: 80,
     alignItems: 'center',

@@ -3,17 +3,18 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 10,
-    padding: 12,
+    padding: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     position: 'relative',
-    width: '90%',
+    width: '92%',
     maxWidth: 500,
   },
   logo: {
     width: 24,
-    height: 24,
+    height: 22,
+    objectFit: 'contain',
     marginBottom: 10,
   },
   rightBox: {
@@ -68,8 +69,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 90,
-    height: 90,
+    width: 80,
+    height: 75,
   },
   circularProgress: {
     width: 58,

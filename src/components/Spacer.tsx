@@ -8,6 +8,9 @@ const Spacer = () => {
 const styles = StyleSheet.create({
   spacer: {
     height: 100,
+    borderRadius: 10,
+    padding: 18,
+    width: '100%',
   },
 });
 

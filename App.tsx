@@ -16,13 +16,13 @@ import {
 
 import MainApp from './src/main';
 import Footer from './src/components/footer';
+import Header from './src/components/Header';
 
 function App(): React.JSX.Element {
-  // const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <SafeAreaView style={[styles.container]}>
-      {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
+      <StatusBar barStyle={'light-content'} backgroundColor="#18181B" />
+      <Header />
       <MainApp />
       <Footer />
     </SafeAreaView>

@@ -6,7 +6,6 @@ import Card from './components/Card';
 const MainApp = ({}) => {
   return (
     <>
-      <View style={styles.header}></View>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView}
@@ -16,20 +15,13 @@ const MainApp = ({}) => {
         <Card />
         <Card />
         <Card />
+        <Spacer />
       </ScrollView>
-      <Spacer />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    height: 70,
-    width: '100%',
-    marginBottom: 20,
-
-    backgroundColor: '#27272A',
-  },
   scrollView: {
     flex: 1,
   },
@@ -39,6 +31,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexWrap: 'wrap',
     gap: 20,
+    paddingTop: 20,
   },
 });
 
