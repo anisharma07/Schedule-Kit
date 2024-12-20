@@ -26,8 +26,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 0,
-    right: 8,
+    top: 7,
+    right: 10,
   },
   closeButtonText: {
     color: '#ffffff',

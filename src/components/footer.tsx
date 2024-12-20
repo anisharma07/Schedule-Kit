@@ -1,23 +1,82 @@
-import React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-
-const Footer: React.FC = () => {
+type FooterProps = {
+  navigate: (screen: string) => void;
+};
+const Footer: React.FC<FooterProps> = ({navigate}) => {
+  const [activeNum, setActiveNum] = useState(5);
   return (
     <View style={styles.navigationBar}>
       <View style={styles.footer}>
-        <Image
-          source={require('../assets/images/team.png')}
-          style={styles.logo}
-        />
-        <Image
-          source={require('../assets/images/home.png')}
-          style={styles.logo}
-        />
-        <Image
-          source={require('../assets/images/settings.png')}
-          style={styles.logo}
-        />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigate('Home')}>
+          <Image
+            source={require('../assets/icons/navigation/home.png')}
+            style={styles.logo}
+          />
+          {activeNum == 1 ? (
+            <Image
+              source={require('../assets/icons/navigation/glow.png')}
+              style={styles.activeTab}
+            />
+          ) : null}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigate('Teams')}>
+          <Image
+            source={require('../assets/icons/navigation/team.png')}
+            style={styles.logo}
+          />
+          {activeNum == 2 ? (
+            <Image
+              source={require('../assets/icons/navigation/glow.png')}
+              style={styles.activeTab}
+            />
+          ) : null}
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => navigate('Ai')}>
+          <Image
+            source={require('../assets/icons/navigation/ai.png')}
+            style={styles.logo}
+          />
+          {activeNum == 3 ? (
+            <Image
+              source={require('../assets/icons/navigation/glow.png')}
+              style={styles.activeTab}
+            />
+          ) : null}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigate('Time')}>
+          <Image
+            source={require('../assets/icons/navigation/time-table.png')}
+            style={styles.logo}
+          />
+          {activeNum == 4 ? (
+            <Image
+              source={require('../assets/icons/navigation/glow.png')}
+              style={styles.activeTab}
+            />
+          ) : null}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigate('Settings')}>
+          <Image
+            source={require('../assets/icons/navigation/settings.png')}
+            style={styles.logo}
+          />
+          {activeNum == 5 ? (
+            <Image
+              source={require('../assets/icons/navigation/glow.png')}
+              style={styles.activeTab}
+            />
+          ) : null}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -48,7 +107,22 @@ const styles = StyleSheet.create({
   logo: {
     width: 30,
     height: 30,
-    marginBottom: 10,
+  },
+  button: {
+    alignItems: 'center',
+    position: 'relative',
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 12,
+  },
+  activeTab: {
+    width: 80,
+    height: 80,
+    position: 'absolute',
+    top: -25,
+    left: -25,
+    zIndex: -1,
   },
 });
 

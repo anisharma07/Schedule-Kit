@@ -40,7 +40,10 @@ const Card = () => {
   return (
     <View style={[styles.cardContainer, {backgroundColor: cardColor}]}>
       <TouchableOpacity style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>x</Text>
+        <Image
+          source={require('../assets/icons/three-dot.png')}
+          style={styles.logo}
+        />
       </TouchableOpacity>
       <View>
         <View style={styles.header}>
@@ -84,7 +87,7 @@ const Card = () => {
           <TouchableOpacity>
             <Text style={styles.actionButtonText}>
               <Image
-                source={require('../assets/icons/edit.png')}
+                source={require('../assets/icons/eye.png')}
                 style={styles.logo}
               />
             </Text>

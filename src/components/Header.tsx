@@ -1,17 +1,14 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Touchable,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
-const Header: React.FC = () => {
+type Props = {
+  toggler: () => void;
+};
+
+const Header: React.FC<Props> = ({toggler}) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => toggler()}>
         <Image
           source={require('../assets/images/registers.png')}
           style={{width: 50, height: 50}}
