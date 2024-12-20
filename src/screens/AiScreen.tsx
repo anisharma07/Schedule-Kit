@@ -4,7 +4,7 @@ import {View, Text, StyleSheet} from 'react-native';
 const AiScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Details Screen</Text>
+      <Text>AI Screen</Text>
     </View>
   );
 };

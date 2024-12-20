@@ -4,7 +4,7 @@ import {View, Text, StyleSheet} from 'react-native';
 const TimeTableScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Details Screen</Text>
+      <Text>Time Table Screen</Text>
     </View>
   );
 };

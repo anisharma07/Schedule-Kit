@@ -11,19 +11,7 @@ const styles = StyleSheet.create({
     width: '92%',
     maxWidth: 500,
   },
-  logo: {
-    width: 24,
-    height: 22,
-    objectFit: 'contain',
-    marginBottom: 10,
-  },
-  rightBox: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 15,
-    marginRight: 15,
-  },
+
   closeButton: {
     position: 'absolute',
     top: 7,
@@ -36,20 +24,41 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+  },
+  miniHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   indicator: {
-    width: 5,
+    width: 4,
     height: 24,
-    marginRight: 12,
+    marginRight: 11,
+  },
+  miniIndicator: {
+    position: 'absolute',
+    top: 5,
+    left: -9,
+    width: 3,
+    height: 18,
+    marginRight: 6,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '900',
     color: '#fff',
   },
-  attendanceInfo: {
-    marginTop: 8,
+  miniHeaderTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#fff',
+  },
+  ratioBox: {
+    marginTop: 7,
+    marginBottom: 7,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   attendanceText: {
     fontSize: 21,
@@ -61,9 +70,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
+  miniAttendanceCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    minWidth: 80,
+    textAlign: 'center',
+  },
   statusText: {
     fontSize: 14,
     color: '#fff',
+  },
+  rightBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 15,
+    marginRight: 15,
   },
   circularContainer: {
     position: 'relative',
@@ -72,9 +95,25 @@ const styles = StyleSheet.create({
     width: 80,
     height: 75,
   },
+  miniCircularContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+  },
   circularProgress: {
     width: 58,
     height: 58,
+    borderRadius: 50,
+    position: 'absolute',
+    zIndex: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniCircularProgress: {
+    width: 40,
+    height: 40,
     borderRadius: 50,
     position: 'absolute',
     zIndex: 100,
@@ -86,13 +125,44 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
+  miniPercentageText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
   actionButtons: {
     flexDirection: 'row',
     gap: 15,
   },
+  miniActionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingTop: 10,
+  },
   actionButtonText: {
     fontSize: 18,
     color: '#fff',
+  },
+
+  logo: {
+    width: 24,
+    height: 22,
+    objectFit: 'contain',
+    marginBottom: 10,
+  },
+  miniThreeDot: {
+    position: 'absolute',
+    top: 3,
+    right: 18,
+  },
+  miniLogo: {
+    width: 24,
+    height: 24,
+    objectFit: 'contain',
+  },
+  threeDot: {
+    width: 15,
+    objectFit: 'contain',
   },
 });
 

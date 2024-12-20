@@ -4,7 +4,7 @@ import {View, Text, StyleSheet} from 'react-native';
 const TeamsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Details Screen</Text>
+      <Text>Teams Screen</Text>
     </View>
   );
 };

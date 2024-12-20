@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import Card from '../components/Card';
 import Spacer from '../components/Spacer';
 import Header from '../components/Header';
@@ -12,82 +12,62 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import Sidebar from '../components/Sidebar';
+import MiniCard from '../components/MiniCard';
 // import Footer from '../components/footer';
-const HomeScreen: React.FC = () => {
-  const [isDrawerVisible, setDrawerVisible] = useState(false);
-  const [slideAnim] = useState(
-    new Animated.Value(-Dimensions.get('window').width),
-  ); // Initial position off-screen
+const {width} = Dimensions.get('window');
 
-  const toggleDrawer = () => {
-    if (isDrawerVisible) {
-      // Slide out
-      Animated.timing(slideAnim, {
-        toValue: -Dimensions.get('window').width, // Move off-screen
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => setDrawerVisible(false));
-    } else {
-      setDrawerVisible(true);
-      // Slide in
-      Animated.timing(slideAnim, {
-        toValue: 0, // Move to visible position
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
+const HomeScreen: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const sidebarTranslate = useRef(new Animated.Value(-width * 0.8)).current;
+
+  const toggleSidebar = () => {
+    Animated.timing(sidebarTranslate, {
+      toValue: isOpen ? -width * 0.8 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setIsOpen(!isOpen);
+    });
   };
   return (
     <View style={styles.homeView}>
-      <Header toggler={toggleDrawer} />
-
       {/* Custom Drawer */}
-      {isDrawerVisible && (
-        <Modal
-          transparent={true}
-          animationType="none"
-          visible={isDrawerVisible}>
-          <TouchableOpacity style={styles.overlay} onPress={toggleDrawer} />
+      {/* <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isOpen}
+        onRequestClose={toggleSidebar}
+      /> */}
 
-          <Animated.View
-            style={[
-              styles.drawerContainer,
-              {transform: [{translateX: slideAnim}]},
-            ]}>
-            <View style={styles.drawerContent}>
-              <Text style={styles.drawerTitle}>Activity Registers</Text>
+      {/* overlay */}
+      {/* <View style={styles.overlay}>
+        
+      </View> */}
 
-              {/* List of Registers */}
-              {Array.from({length: 5}, (_, index) => (
-                <View key={index} style={styles.registerItem}>
-                  <Text style={styles.registerText}>Register {index + 1}</Text>
-                  <TouchableOpacity style={styles.editButton}>
-                    <Text style={styles.editText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.deleteButton}>
-                    <Text style={styles.deleteText}>🗑️</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-
-              {/* Add New Register */}
-              <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addText}>Create New Register ➕</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </Modal>
-      )}
-
+      {/* Cards  */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}>
+        {/* <Card />
         <Card />
         <Card />
         <Card />
+        <Card /> */}
         <Card />
-        <Card />
+
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
+        <MiniCard />
         <Spacer />
       </ScrollView>
       {/* <Footer navigate={navigate} /> */}
@@ -182,6 +162,20 @@ const styles = StyleSheet.create({
   addText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: Dimensions.get('window').width * 0.8, // 80% of screen width
+    backgroundColor: '#1e1e1e',
+    padding: 20,
+    zIndex: 1000000,
+  },
+  sidebarText: {
+    color: '#fff',
+    fontSize: 18,
   },
 });
 

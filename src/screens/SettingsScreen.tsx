@@ -5,7 +5,7 @@ import Footer from '../components/footer';
 const SettingsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Details Screen</Text>
+      <Text>Settings Screen</Text>
     </View>
   );
 };

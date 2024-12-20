@@ -9,6 +9,8 @@ const Card = () => {
   const [total, setTotal] = useState(2);
   const [percentage, setPercentage] = useState(0);
   const [cardColor, setCardColor] = useState('#892B2B');
+  const [tagColor, setTagColor] = useState('#A7D477');
+  const [headerTitle, setHeaderTitle] = useState('ALGORITHMS');
   const MarkPresent = () => {
     setPresent(prev => prev + 1);
     setTotal(prev => prev + 1);
@@ -47,16 +49,20 @@ const Card = () => {
       </TouchableOpacity>
       <View>
         <View style={styles.header}>
-          <View style={[styles.indicator, {backgroundColor: '#A7D477'}]}></View>
-          <Text style={styles.headerTitle}>DSA</Text>
+          <View style={[styles.indicator, {backgroundColor: tagColor}]}></View>
+          <Text style={styles.headerTitle}>
+            {headerTitle.length > 10
+              ? headerTitle.substring(0, 10) + '..'
+              : headerTitle}
+          </Text>
         </View>
-        <View style={styles.attendanceInfo}>
-          <Text style={styles.attendanceText}>
-            Attendance{' '}
+        <View>
+          <View style={styles.ratioBox}>
+            <Text style={styles.attendanceText}>Attended:</Text>
             <Text style={styles.attendanceCount}>
               {presents}/{total}
             </Text>
-          </Text>
+          </View>
           <Text style={styles.statusText}>Status: good</Text>
         </View>
       </View>
