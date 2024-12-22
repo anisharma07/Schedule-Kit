@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -19,6 +19,7 @@ import CustomTabBar from '../components/CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import {StackNavigationProp} from '@react-navigation/stack';
+import useStore from '../store/store';
 const {width} = Dimensions.get('window');
 
 type TabParamList = {
@@ -43,9 +44,20 @@ const Tabs: React.FC = ({navigation, route}: any) => {
       setIsOpen(!isOpen);
     });
   };
+  const {registers, activeRegister} = useStore();
+  const [activeRegisterName, setActiveRegisterName] = useState('');
+  useEffect(() => {
+    const name = registers[activeRegister]?.name;
+    setActiveRegisterName(name || 'l');
+  }, [activeRegister]);
+
   return (
     <>
-      <Header toggler={toggleSidebar} changeStack={navigation.navigate} />
+      <Header
+        toggler={toggleSidebar}
+        changeStack={navigation.navigate}
+        registerName={activeRegisterName}
+      />
       <Tab.Navigator
         initialRouteName="Home"
         tabBar={props => <CustomTabBar {...props} />}

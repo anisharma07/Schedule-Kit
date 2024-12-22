@@ -4,9 +4,10 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 type Props = {
   toggler: () => void;
   changeStack: (type: string) => void;
+  registerName: string;
 };
 
-const Header: React.FC<Props> = ({toggler, changeStack}) => {
+const Header: React.FC<Props> = ({toggler, changeStack, registerName}) => {
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>
@@ -24,7 +25,7 @@ const Header: React.FC<Props> = ({toggler, changeStack}) => {
             marginLeft: 10,
             color: 'white',
           }}>
-          Semester V
+          {registerName}
         </Text>
         <TouchableOpacity onPress={() => changeStack('Add')}>
           <Image

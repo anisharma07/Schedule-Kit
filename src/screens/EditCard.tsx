@@ -31,8 +31,9 @@ interface Card {
   markedAt: string[];
 }
 
-const AddCard: React.FC = ({navigation, route}: any) => {
-  const {addCard, activeRegister, registers} = useStore();
+const EditCard: React.FC = ({navigation, route}: any) => {
+  const {card_register, card_id} = route.params;
+  const {editCard, registers} = useStore();
 
   const [card, setCard] = useState<Card>({
     id: 1,
@@ -52,7 +53,12 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     },
     markedAt: [],
   });
-
+  useEffect(() => {
+    const currCard = registers[card_register]?.cards?.find(
+      curr => curr.id === card_id,
+    );
+    if (currCard) setCard(currCard);
+  }, [card_register, card_id]);
   const handleInputChange = (field: keyof Card, value: string | number) => {
     setCard(prev => ({
       ...prev,
@@ -69,16 +75,6 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       },
     }));
   };
-  const handleIdChange = (value: number) => {
-    setCard(prev => ({
-      ...prev,
-      id: value,
-    }));
-  };
-
-  useEffect(() => {
-    handleIdChange(registers[activeRegister]?.cards?.length);
-  }, [registers, activeRegister]);
 
   const handleSubmit = () => {
     if (!card.title) {
@@ -89,7 +85,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       Alert.alert('Error', 'total<presents');
       return;
     }
-    addCard(activeRegister, card);
+    editCard(card_register, card, card_id);
     navigation.navigate('Tab');
     // Add logic to save or navigate
   };
@@ -204,4 +200,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCard;
+export default EditCard;

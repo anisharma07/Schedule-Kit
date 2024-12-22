@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   ratioBox: {
-    marginTop: 7,
-    marginBottom: 7,
+    marginTop: 14,
+
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',

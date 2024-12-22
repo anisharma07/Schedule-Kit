@@ -1,50 +1,48 @@
-import React, {useState, useRef} from 'react';
-import Card from '../components/Card';
+import React, {useState, useEffect} from 'react';
+import Card from '../components/Cards/Card';
 import Spacer from '../components/Spacer';
-import Header from '../components/Header';
 import {
   View,
-  Text,
-  Modal,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  Animated,
   Dimensions,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
-import Sidebar from '../components/Sidebar';
-import MiniCard from '../components/MiniCard';
-// import Footer from '../components/footer';
-const {width} = Dimensions.get('window');
+import MiniCard from '../components/Cards/MiniCard';
+import useStore from '../store/store';
+import {CardInterface} from '../store/store';
 
-const HomeScreen: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const sidebarTranslate = useRef(new Animated.Value(-width * 0.8)).current;
+const HomeScreen: React.FC = ({navigation, route}: any) => {
+  const {registers, activeRegister, updatedAt, setRegisterCardSize} =
+    useStore();
+  const [cardSize, setCardSize] = useState('normal');
+  const [currentRegister, setCurrentRegister] = useState<CardInterface[]>([]);
 
-  const toggleSidebar = () => {
-    Animated.timing(sidebarTranslate, {
-      toValue: isOpen ? -width * 0.8 : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsOpen(!isOpen);
-    });
+  useEffect(() => {
+    setCurrentRegister(registers[activeRegister]?.cards || []);
+    // console.log('lele', registers['default'][0]?.days);
+    setCardSize(registers[activeRegister]?.card_size);
+  }, [updatedAt, activeRegister]);
+
+  const handleEdit = (id: number) => {
+    navigation.navigate('Edit', {card_register: activeRegister, card_id: id});
   };
+
+  const toggleSort = () => {
+    if (cardSize == 'small') setRegisterCardSize(activeRegister, 'normal');
+    else setRegisterCardSize(activeRegister, 'small');
+  };
+
   return (
     <View style={styles.homeView}>
       {/* Custom Drawer */}
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isOpen}
-        onRequestClose={toggleSidebar}
-      /> */}
-
-      {/* overlay */}
-      {/* <View style={styles.overlay}>
-        
-      </View> */}
-
+      <TouchableOpacity onPress={toggleSort}>
+        <Image
+          source={require('../assets/images/logo.png')}
+          style={styles.logo}
+        />
+      </TouchableOpacity>
       {/* Cards  */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -55,19 +53,33 @@ const HomeScreen: React.FC = () => {
         <Card />
         <Card />
         <Card /> */}
-        <Card />
-
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
-        <MiniCard />
+        {currentRegister.map((card, index) =>
+          cardSize == 'small' ? (
+            <MiniCard
+              key={index}
+              id={card.id}
+              title={card.title}
+              present={card.present}
+              total={card.total}
+              target_percentage={card.target_percentage}
+              tagColor={card.tagColor}
+              activeRegister={activeRegister}
+              handleEdit={handleEdit}
+            />
+          ) : (
+            <Card
+              key={index}
+              id={card.id}
+              title={card.title}
+              present={card.present}
+              total={card.total}
+              target_percentage={card.target_percentage}
+              tagColor={card.tagColor}
+              activeRegister={activeRegister}
+              handleEdit={handleEdit}
+            />
+          ),
+        )}
         <Spacer />
       </ScrollView>
       {/* <Footer navigate={navigate} /> */}
@@ -82,6 +94,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    marginLeft: '50%',
   },
   contentContainer: {
     flexDirection: 'row',

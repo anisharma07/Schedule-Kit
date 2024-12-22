@@ -5,11 +5,12 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {StyleSheet} from 'react-native';
 import Tabs from './Tabs/Tabs';
 import AddCard from './screens/AddCard';
+import EditCard from './screens/EditCard';
 
 type RootStackParamList = {
   Tab: undefined;
   Add: undefined;
-  Edit: undefined;
+  Edit: {card_register: number; card_id: number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -21,12 +22,13 @@ const MainApp = ({}) => {
         <Stack.Screen
           name="Tab"
           component={Tabs}
-          options={{animation: 'slide_from_bottom'}}
+          // options={{animation: 'slide_from_bottom'}}
         />
 
+        <Stack.Screen name="Add" component={AddCard} />
         <Stack.Screen
-          name="Add"
-          component={AddCard}
+          name="Edit"
+          component={EditCard}
           options={{animation: 'slide_from_right'}}
         />
       </Stack.Navigator>
