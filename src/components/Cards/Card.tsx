@@ -97,7 +97,7 @@ const Card: React.FC<CardProps> = ({
               {cardPresents}/{cardTotals}
             </Text>
           </View>
-          <Text style={styles.statusText}>Status: can leave next 2 events</Text>
+          <Text style={styles.statusText}>classes left: 4</Text>
         </View>
       </View>
       <View style={styles.rightBox}>

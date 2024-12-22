@@ -55,7 +55,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
               onPress={onPress}
               onLongPress={onLongPress}
               style={styles.button}>
-              <Image source={iconName} style={styles.logo} />
+              <View style={styles.boxy}>
+                <Image source={iconName} style={styles.logo} />
+              </View>
               {isFocused && (
                 <Image
                   source={require('../assets/icons/navigation/glow.png')}
@@ -73,9 +75,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
 const styles = StyleSheet.create({
   navigationBar: {
     width: '100%',
-    height: 80,
+    height: 70,
     position: 'absolute',
-    bottom: 8,
+    bottom: 12,
     left: 0,
   },
   footer: {
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     margin: 'auto',
     backgroundColor: '#27272A',
-    height: 80,
+    height: 70,
     alignItems: 'center',
     justifyContent: 'space-evenly',
     flexDirection: 'row',
@@ -93,8 +95,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   logo: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
   },
   button: {
     alignItems: 'center',
@@ -105,12 +107,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   activeTab: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     position: 'absolute',
-    top: -25,
-    left: -25,
+    top: 0,
+    left: -17,
     zIndex: -1,
+  },
+  boxy: {
+    paddingLeft: 5,
+    paddingRight: 5,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
