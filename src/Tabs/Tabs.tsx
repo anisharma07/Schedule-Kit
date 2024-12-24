@@ -1,25 +1,21 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
 import AiScreen from '../screens/AiScreen';
 import TimeTableScreen from '../screens/TimeTableScreen';
 import TeamsScreen from '../screens/TeamsScreen';
+
 import {
   Animated,
-  Button,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
-  View,
-  ViewComponent,
-  Text,
+  Easing,
+  PanResponder,
 } from 'react-native';
 import CustomTabBar from '../components/CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import {StackNavigationProp} from '@react-navigation/stack';
-import useStore from '../store/store';
 const {width} = Dimensions.get('window');
 
 type TabParamList = {
@@ -31,55 +27,91 @@ type TabParamList = {
 };
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const Tabs: React.FC = ({navigation, route}: any) => {
+const Tabs: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarTranslate = useRef(new Animated.Value(-width * 0.8)).current;
 
   const toggleSidebar = () => {
     Animated.timing(sidebarTranslate, {
       toValue: isOpen ? -width * 0.8 : 0,
-      duration: 200,
+      duration: 500, // Increase duration for smoother animation
+      easing: Easing.out(Easing.exp), // Use easing function for smoother curve
       useNativeDriver: true,
     }).start(() => {
       setIsOpen(!isOpen);
     });
   };
-  const {registers, activeRegister} = useStore();
-  const [activeRegisterName, setActiveRegisterName] = useState('');
-  useEffect(() => {
-    const name = registers[activeRegister]?.name;
-    setActiveRegisterName(name || 'l');
-  }, [activeRegister]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        return Math.abs(gestureState.dx) > 20;
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        if (gestureState.dx < 0) {
+          sidebarTranslate.setValue(gestureState.dx);
+        }
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (gestureState.dx < -width * 0.4) {
+          Animated.timing(sidebarTranslate, {
+            toValue: -width * 0.8,
+            duration: 500,
+            easing: Easing.out(Easing.exp),
+            useNativeDriver: true,
+          }).start(() => {
+            setIsOpen(false);
+          });
+        } else {
+          Animated.timing(sidebarTranslate, {
+            toValue: 0,
+            duration: 500,
+            easing: Easing.out(Easing.exp),
+            useNativeDriver: true,
+          }).start(() => {
+            setIsOpen(true);
+          });
+        }
+      },
+    }),
+  ).current;
+
+  const overlayOpacity = sidebarTranslate.interpolate({
+    inputRange: [-width * 0.8, 0],
+    outputRange: [0, 0.5],
+    extrapolate: 'clamp',
+  });
 
   return (
     <>
-      <Header
-        toggler={toggleSidebar}
-        changeStack={navigation.navigate}
-        registerName={activeRegisterName}
-      />
       <Tab.Navigator
         initialRouteName="Home"
         tabBar={props => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {backgroundColor: '#000000'}, // Set background color to transparent
+          tabBarStyle: {backgroundColor: '#000000'},
         }}>
-        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Home">
+          {props => <HomeScreen {...props} toggleSidebar={toggleSidebar} />}
+        </Tab.Screen>
         <Tab.Screen name="Teams" component={TeamsScreen} />
         <Tab.Screen name="Ai" component={AiScreen} />
         <Tab.Screen name="Time" component={TimeTableScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
       {/* SIDEBAR  */}
-      {isOpen && (
+      <Animated.View
+        style={[styles.overlay, {opacity: overlayOpacity}]}
+        pointerEvents={isOpen ? 'auto' : 'none'}>
         <TouchableOpacity
           activeOpacity={1}
-          style={styles.overlay}
-          onPress={toggleSidebar}></TouchableOpacity>
-      )}
+          style={StyleSheet.absoluteFill}
+          onPress={toggleSidebar}
+        />
+      </Animated.View>
       <Animated.View
-        style={[styles.sidebar, {transform: [{translateX: sidebarTranslate}]}]}>
+        style={[styles.sidebar, {transform: [{translateX: sidebarTranslate}]}]}
+        {...panResponder.panHandlers}>
         <Sidebar closeSideBar={toggleSidebar} />
       </Animated.View>
     </>

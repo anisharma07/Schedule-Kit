@@ -12,8 +12,16 @@ import {
 import MiniCard from '../components/Cards/MiniCard';
 import useStore from '../store/store';
 import {CardInterface} from '../store/store';
+import Header from '../components/Header';
+interface HomeScreenProps {
+  toggleSidebar: () => void;
+}
 
-const HomeScreen: React.FC = ({navigation, route}: any) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({
+  navigation,
+  route,
+  toggleSidebar,
+}: any) => {
   const {registers, activeRegister, updatedAt, setRegisterCardSize} =
     useStore();
   const [cardSize, setCardSize] = useState('normal');
@@ -36,6 +44,11 @@ const HomeScreen: React.FC = ({navigation, route}: any) => {
 
   return (
     <View style={styles.homeView}>
+      <Header
+        toggler={toggleSidebar}
+        changeStack={navigation.navigate}
+        registerName={registers[activeRegister]?.name}
+      />
       {/* Custom Drawer */}
       <TouchableOpacity onPress={toggleSort}>
         <Image

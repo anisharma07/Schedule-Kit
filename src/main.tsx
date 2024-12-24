@@ -25,7 +25,11 @@ const MainApp = ({}) => {
           // options={{animation: 'slide_from_bottom'}}
         />
 
-        <Stack.Screen name="Add" component={AddCard} />
+        <Stack.Screen
+          name="Add"
+          component={AddCard}
+          options={{animation: 'slide_from_right'}}
+        />
         <Stack.Screen
           name="Edit"
           component={EditCard}
