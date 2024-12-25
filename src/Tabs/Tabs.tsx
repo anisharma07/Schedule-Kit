@@ -78,7 +78,7 @@ const Tabs: React.FC = () => {
 
   const overlayOpacity = sidebarTranslate.interpolate({
     inputRange: [-width * 0.8, 0],
-    outputRange: [0, 0.5],
+    outputRange: [0, 0.7],
     extrapolate: 'clamp',
   });
 
@@ -124,9 +124,12 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    width: width * 0.8, // 80% of screen width
-    backgroundColor: '#1e1e1e',
+    width: width * 0.8,
+    maxWidth: width * 1,
+    backgroundColor: '#18181B',
     padding: 20,
+    borderRightWidth: 1,
+    borderColor: '#252525',
     zIndex: 1000000,
   },
   overlay: {
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 100,
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
 });
 export default Tabs;

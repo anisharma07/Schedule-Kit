@@ -33,10 +33,14 @@ interface Registers {
 
 interface StoreState {
   registers: Registers;
+  copyRegister: number;
   activeRegister: number;
   updatedAt: Date | null;
+  changeCopyRegister: (registerId: number) => void;
   setActiveRegister: (registerId: number) => void;
   addRegister: (registerId: number, registerName: string) => void;
+  renameRegister: (registerId: number, registerName: string) => void;
+  removeRegister: (registerId: number) => void;
   addCard: (registerId: number, cardData: CardInterface) => void;
   markPresent: (registerId: number, cardId: number) => void;
   markAbsent: (registerId: number, id: number) => void;
@@ -62,7 +66,13 @@ export const useStore = create<StoreState>()(
         },
       },
       activeRegister: 0,
+      copyRegister: 0,
       updatedAt: null,
+
+      changeCopyRegister: (registerId: number) =>
+        set(() => ({
+          copyRegister: registerId,
+        })),
 
       setActiveRegister: (registerId: number) =>
         set(() => ({
@@ -83,6 +93,44 @@ export const useStore = create<StoreState>()(
             },
           },
         })),
+
+      renameRegister: (registerId: number, registerName: string) =>
+        set(state => ({
+          registers: {
+            ...state.registers,
+            [registerId]: {
+              ...state.registers[registerId],
+              name: registerName,
+            },
+          },
+        })),
+
+      clearCardsAttendance: (registerId: number) =>
+        set(state => ({
+          registers: {
+            ...state.registers,
+            [registerId]: {
+              ...state.registers[registerId],
+              cards: state.registers[registerId].cards.map(card => ({
+                ...card,
+                present: 0,
+                total: 0,
+              })),
+            },
+          },
+        })),
+
+      removeRegister: (registerId: number) =>
+        set(state => {
+          const registers = {...state.registers};
+          const newActiveRegister =
+            state.activeRegister === registerId ? 0 : state.activeRegister;
+          delete registers[registerId];
+          return {
+            registers,
+            activeRegister: newActiveRegister,
+          };
+        }),
 
       addCard: (registerId: number, cardData: CardInterface) =>
         set(state => ({
