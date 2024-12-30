@@ -87,7 +87,7 @@ const Card: React.FC<CardProps> = ({
         <View style={styles.header}>
           <View style={[styles.indicator, {backgroundColor: tagColor}]}></View>
           <Text style={styles.headerTitle}>
-            {title.length > 10 ? title.substring(0, 10) + '..' : title}
+            {title.length > 15 ? title.substring(0, 15) + '..' : title}
           </Text>
         </View>
         <View>

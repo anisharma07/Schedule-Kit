@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import MiniCard from '../components/Cards/MiniCard';
 import useStore from '../store/store';
-import {CardInterface} from '../store/store';
+import {CardInterface} from '../types/cards';
 import Header from '../components/Header';
 interface HomeScreenProps {
   toggleSidebar: () => void;
@@ -50,6 +50,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         registerName={registers[activeRegister]?.name}
       />
       {/* Custom Drawer */}
+
       <TouchableOpacity onPress={toggleSort}>
         <Image
           source={require('../assets/images/logo.png')}

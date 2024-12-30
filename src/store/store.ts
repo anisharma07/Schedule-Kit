@@ -1,27 +1,7 @@
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface Days {
-  mon: string[];
-  tue: string[];
-  wed: string[];
-  thu: string[];
-  fri: string[];
-  sat: string[];
-  sun: string[];
-}
-
-export interface CardInterface {
-  id: number;
-  title: string;
-  present: number;
-  total: number;
-  target_percentage: number;
-  tagColor: string;
-  days: Days;
-  markedAt: string[];
-}
+import {CardInterface} from '../types/cards';
 
 interface Registers {
   [key: number]: {
@@ -36,6 +16,7 @@ interface StoreState {
   copyRegister: number;
   activeRegister: number;
   updatedAt: Date | null;
+  defaultTargetPercentage: number;
   changeCopyRegister: (registerId: number) => void;
   setActiveRegister: (registerId: number) => void;
   addRegister: (registerId: number, registerName: string) => void;
@@ -68,6 +49,7 @@ export const useStore = create<StoreState>()(
       activeRegister: 0,
       copyRegister: 0,
       updatedAt: null,
+      defaultTargetPercentage: 75,
 
       changeCopyRegister: (registerId: number) =>
         set(() => ({
