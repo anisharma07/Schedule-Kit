@@ -14,6 +14,7 @@ import useStore from '../store/store';
 import {Days, CardInterface, Slots} from '../types/cards';
 import {Picker} from '@react-native-picker/picker';
 import {convertTo24Hrs, convertToUTM} from '../utils/functions';
+import Calendar from '../components/Calendar';
 
 const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 type DayOfWeek = (typeof daysOfWeek)[number];
@@ -46,6 +47,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     endTime: '00:00',
     isAM_end: true,
   });
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [card, setCard] = useState<CardInterface>({
     id: 1,
@@ -352,6 +354,12 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               )),
             )}
           </ScrollView>
+        </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Calendar
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         </View>
         <Button title="add time" onPress={() => handleAddTime()} />
 
