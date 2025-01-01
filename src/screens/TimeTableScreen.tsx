@@ -133,7 +133,6 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
           card: timeSlots[timeSlot],
         });
       });
-
     setDisplayCards(selectedDayCards);
   }, [activeRegister, selectedDay]);
 
@@ -163,7 +162,29 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView2}
         contentContainerStyle={styles.contentContainer}>
-        {registers[activeRegister]?.cards?.map((card, index) => (
+        {displayCards.map((cardSlot, index) => {
+          return (
+            <>
+              <Text key={index} style={styles.cardSlotTime}>
+                {cardSlot.time}
+              </Text>
+              {cardSlot.card.map(card => (
+                <Card
+                  key={card.id}
+                  id={card.id}
+                  title={card.title}
+                  present={card.present}
+                  total={card.total}
+                  target_percentage={card.target_percentage}
+                  tagColor={card.tagColor}
+                  activeRegister={activeRegister}
+                  handleEdit={handleEdit}
+                />
+              ))}
+            </>
+          );
+        })}
+        {/* {registers[activeRegister]?.cards?.map((card, index) => (
           <Card
             key={index}
             id={card.id}
@@ -175,7 +196,7 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
             activeRegister={activeRegister}
             handleEdit={handleEdit}
           />
-        ))}
+        ))} */}
       </ScrollView>
       <Spacer />
     </View>
@@ -238,6 +259,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  cardSlotTime: {
+    color: '#fff',
+    textAlign: 'left',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 });
 
