@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   Dimensions,
+  Image,
 } from 'react-native';
 import {Markings} from '../types/cards';
 
@@ -13,15 +14,17 @@ interface CalendarProps {
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   markedArr: Markings[];
+  currentMonth: Date;
+  setCurrentMonth: (date: Date) => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
   selectedDate,
   setSelectedDate,
   markedArr,
+  currentMonth,
+  setCurrentMonth,
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(selectedDate);
-
   const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
   const getDaysInMonth = (date: Date) => {
@@ -58,6 +61,24 @@ const Calendar: React.FC<CalendarProps> = ({
       date.getFullYear() === today.getFullYear()
     );
   };
+  const isColored = (item: Date | null) => {
+    if (!item) return false;
+    if (isToday(item)) return true;
+    const day = item.getDate();
+    const month = item.getMonth();
+    const year = item.getFullYear();
+    const marks = markedArr.filter(
+      date =>
+        new Date(date.date).toLocaleDateString() ===
+        new Date(year, month, day).toLocaleDateString(),
+    );
+    if (marks.length === 0) return false;
+    return true;
+  };
+  const isSunday = (date: Date | null) => {
+    if (!date) return false;
+    return date.getDay() === 0;
+  };
 
   const isSelected = (date: Date | null) => {
     if (!date) return false;
@@ -92,14 +113,20 @@ const Calendar: React.FC<CalendarProps> = ({
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => handleMonthChange('prev')}>
-          <Text style={styles.navButton}>{'<'}</Text>
+          <Image
+            source={require('../assets/icons/left-arrow.png')}
+            style={{width: 20, height: 20}}
+          />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           {currentMonth.toLocaleString('default', {month: 'long'})}{' '}
           {currentMonth.getFullYear()}
         </Text>
         <TouchableOpacity onPress={() => handleMonthChange('next')}>
-          <Text style={styles.navButton}>{'>'}</Text>
+          <Image
+            source={require('../assets/icons/right-arrow.png')}
+            style={{width: 20, height: 20}}
+          />
         </TouchableOpacity>
       </View>
 
@@ -132,7 +159,15 @@ const Calendar: React.FC<CalendarProps> = ({
                 {backgroundColor: isToday(item) ? '#007BFF' : findColor(item)},
               ]}
               onPress={() => item && setSelectedDate(item)}>
-              <Text style={styles.dayText}>{item ? item.getDate() : ''}</Text>
+              <Text
+                style={[
+                  styles.dayText,
+                  {
+                    color: isSunday(item) && !isColored(item) ? 'red' : 'white',
+                  },
+                ]}>
+                {item ? item.getDate() : ''}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -149,14 +184,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#3A3A3A',
     width: Dimensions.get('window').width - 20,
+    margin: 'auto',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   header: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: 15,
+    borderBottomWidth: 1,
     borderBottomColor: '#3A3A3A',
-    borderWidth: 1,
   },
   headerText: {
     color: 'white',
@@ -194,8 +233,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cellButton: {
-    width: '75%',
-    height: '75%',
+    width: '65%',
+    height: '65%',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,

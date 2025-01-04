@@ -3,7 +3,7 @@
 const convertToUTM = (time: string): string => {
   const [hour, minute] = time.split(':').map(time => parseInt(time));
   const isAM = hour < 12;
-  let convertedHour = isAM ? hour : hour - 12;
+  let convertedHour = isAM ? hour : hour == 12 ? hour : hour - 12;
   if (hour == 0) convertedHour = 12;
   return `${convertedHour.toString().padStart(2, '0')}:${minute
     .toString()
@@ -12,7 +12,13 @@ const convertToUTM = (time: string): string => {
 
 const convertTo24Hrs = (time: string, isAM: boolean): string => {
   const [hour, minute] = time.split(':').map(time => parseInt(time));
-  const convertedHour = isAM ? (hour == 12 ? '00' : hour) : hour + 12;
+  const convertedHour = isAM
+    ? hour == 12
+      ? '00'
+      : hour
+    : hour == 12
+    ? hour
+    : hour + 12;
   return `${convertedHour}:${minute}`;
 };
 const formatToHHMM = (dateString: string): string => {
@@ -23,4 +29,9 @@ const formatToHHMM = (dateString: string): string => {
     .padStart(2, '0')}`;
 };
 
-export {convertToUTM, convertTo24Hrs, formatToHHMM};
+const convertToStartSeconds = (time: string): number => {
+  const [hour, minute] = time.split(':').map(time => parseInt(time));
+  return hour * 3600 + minute * 60;
+};
+
+export {convertToUTM, convertTo24Hrs, formatToHHMM, convertToStartSeconds};

@@ -50,8 +50,8 @@ const Tabs: React.FC = ({navigation}: any) => {
   const toggleSidebar = () => {
     Animated.timing(sidebarTranslate, {
       toValue: isOpen ? -width * 0.8 : 0,
-      duration: 500, // Increase duration for smoother animation
-      easing: Easing.out(Easing.exp), // Use easing function for smoother curve
+      duration: 300, // Increase duration for smoother animation
+      easing: Easing.inOut(Easing.quad),
       useNativeDriver: true,
     }).start(() => {
       setIsOpen(!isOpen);

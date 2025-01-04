@@ -42,7 +42,7 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
     } else {
       setIsDropdownOpen(true);
       Animated.timing(dropdownHeight, {
-        toValue: 260, // Adjust based on the number of items
+        toValue: 255, // Adjust based on the number of items
         duration: 300,
         easing: Easing.out(Easing.exp),
         useNativeDriver: false,
@@ -55,24 +55,25 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
         <Image
           source={require('../assets/icons/three-dot.png')}
           style={{
-            width: 25,
-            height: 25,
+            width: 20,
+            height: 20,
             tintColor: '#fff',
             objectFit: 'contain',
           }}
         />
       </TouchableOpacity>
       {index == 0 && (
-        <Text
+        <Image
+          source={require('../assets/images/star.png')}
           style={{
             position: 'absolute',
-            color: '#F97676',
-            top: 15,
+            top: 18,
             left: -15,
-            fontSize: 18,
-          }}>
-          *
-        </Text>
+            width: 10,
+            height: 10,
+            objectFit: 'contain',
+          }}
+        />
       )}
       <TouchableOpacity
         style={styles.registerButton}
@@ -139,7 +140,7 @@ const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
     } else {
       setIsDropdownOpen(true);
       Animated.timing(dropdownHeight, {
-        toValue: 260, // Adjust based on the number of items
+        toValue: 255, // Adjust based on the number of items
         duration: 300,
         easing: Easing.out(Easing.exp),
         useNativeDriver: false,
@@ -152,24 +153,25 @@ const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
         <Image
           source={require('../assets/icons/three-dot.png')}
           style={{
-            width: 25,
-            height: 25,
+            width: 20,
+            height: 20,
             tintColor: '#fff',
             objectFit: 'contain',
           }}
         />
       </TouchableOpacity>
       {index == 0 && (
-        <Text
+        <Image
+          source={require('../assets/images/star.png')}
           style={{
             position: 'absolute',
-            color: '#F97676',
-            top: 15,
+            top: 18,
             left: -15,
-            fontSize: 18,
-          }}>
-          *
-        </Text>
+            width: 10,
+            height: 10,
+            objectFit: 'contain',
+          }}
+        />
       )}
       <TouchableOpacity style={styles.activeRegisterButton}>
         <Text style={styles.emojiText}>📝</Text>
@@ -183,7 +185,7 @@ const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
           style={{
             position: 'absolute',
             top: 0,
-            right: 10,
+            right: 5,
             zIndex: 10000000,
             width: 150,
           }}>
@@ -360,7 +362,7 @@ const styles = StyleSheet.create({
   menu: {
     position: 'absolute',
     top: 11,
-    right: 11,
+    right: 5,
   },
   menuText: {
     marginLeft: 8,
@@ -381,20 +383,20 @@ const styles = StyleSheet.create({
   registerButton: {
     minWidth: '80%',
 
-    marginRight: 50,
+    marginRight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2B2B2B',
     padding: 10,
     paddingLeft: 15,
     borderRadius: 10,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#464646',
   },
   activeRegisterButton: {
     minWidth: '80%',
 
-    marginRight: 50,
+    marginRight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#128700',
@@ -402,7 +404,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingLeft: 15,
 
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#045600',
   },
   createButton: {

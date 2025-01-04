@@ -91,7 +91,7 @@ const Card: React.FC<CardProps> = ({
           <View style={[styles.circularProgress, {backgroundColor: cardColor}]}>
             <Text style={styles.percentageText}>{percentage}%</Text>
           </View>
-          <ConicGradient percentage={percentage} />
+          <ConicGradient percentage={percentage + 1} />
         </View>
         <View style={styles.actionButtons}>
           <TouchableOpacity onPress={MarkPresent}>

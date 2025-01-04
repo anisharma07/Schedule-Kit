@@ -4,22 +4,23 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Touchable,
   TouchableOpacity,
   Dimensions,
   Platform,
   ToastAndroid,
+  Image,
 } from 'react-native';
 import useStore from '../store/store';
 import {CardInterface} from '../types/cards';
 import Calendar from '../components/Calendar';
 import {convertToUTM, formatToHHMM} from '../utils/functions';
-import Toast from 'react-native-toast-message';
 
 const ViewCardDetails: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
   const {editCard, registers, removeMarking} = useStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const [currentMonth, setCurrentMonth] = useState(selectedDate);
   const handleRemoveMark = (
     markId: number,
     cardId: number,
@@ -29,6 +30,12 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
     if (Platform.OS === 'android') {
       ToastAndroid.show('Mark Removed', ToastAndroid.SHORT);
     }
+  };
+  const handleTodayClick = () => {
+    setCurrentMonth(new Date());
+  };
+  const handleNavigateBack = () => {
+    navigation.goBack();
   };
 
   const [card, setCard] = useState<CardInterface>({
@@ -58,16 +65,38 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
     );
     if (currCard) setCard(currCard);
   }, [registers, card_register, card_id]);
+
   return (
     <View style={styles.container}>
-      <Text style={{color: '#fff', fontSize: 24, marginBottom: 20}}>
-        {card.title}
-      </Text>
+      {/* // header  */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleNavigateBack}>
+          <Image
+            source={require('../assets/images/back-btn.png')}
+            style={{width: 40, height: 40}}
+          />
+        </TouchableOpacity>
+        <Text style={{color: '#fff', fontSize: 24}}>
+          {card.title.length > 15
+            ? card.title.substring(0, 15) + '..'
+            : card.title}
+        </Text>
+        <TouchableOpacity
+          onPress={handleTodayClick}
+          style={styles.todayContainer}>
+          <Image
+            source={require('../assets/images/today.png')}
+            style={styles.todayIcon}
+          />
+        </TouchableOpacity>
+      </View>
 
       <Calendar
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         markedArr={card.markedAt}
+        currentMonth={currentMonth}
+        setCurrentMonth={setCurrentMonth}
       />
       {card.markedAt.filter(
         date =>
@@ -75,7 +104,12 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
           new Date(selectedDate).toLocaleDateString(),
       ).length === 0 && (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No Activity on this day</Text>
+          <Text style={styles.emptyText}>
+            {new Date(selectedDate).toLocaleDateString() ===
+            new Date().toLocaleDateString()
+              ? 'No Activity Today'
+              : 'No Activity on selected day'}
+          </Text>
         </View>
       )}
       <ScrollView
@@ -112,7 +146,9 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
                 onPress={() =>
                   handleRemoveMark(date.id, card_id, card_register)
                 }>
-                <Text style={styles.removeMarker}>remove</Text>
+                <Text style={styles.removeMarker}>
+                  {Dimensions.get('window').width < 340 ? 'x' : 'remove'}
+                </Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -125,18 +161,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#18181B',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
+  header: {
+    borderRadius: 15,
+    width: '90%',
+    margin: 'auto',
+    paddingTop: 20,
+    paddingBottom: 35,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  todayContainer: {
+    marginLeft: 'auto',
+  },
+  todayIcon: {
+    width: 35,
+    height: 35,
+  },
+
   scrollView: {
     flex: 1,
   },
   contentContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'flex-start',
-    flexWrap: 'wrap',
     gap: 20,
-
     padding: 20,
   },
   markContainer: {
@@ -144,8 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 15,
+    gap: 10,
   },
   emptyContainer: {
     color: '#fff',
@@ -162,16 +211,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     padding: 5,
     textAlign: 'center',
-    width: 88,
-    paddingHorizontal: 15,
-    borderRadius: 50,
+    width: 70,
+    borderRadius: 8,
     marginBottom: 8,
   },
   removeMarker: {
     color: '#fff',
     padding: 5,
     paddingHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: 50,
     marginBottom: 8,
     backgroundColor: '#750000',
   },

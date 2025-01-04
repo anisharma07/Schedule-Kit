@@ -267,10 +267,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   selectedTabButton: {
-    backgroundColor: '#3D3D3D',
+    backgroundColor: '#ffffff',
+    borderWidth: 0,
   },
   activeTabButton: {
     borderColor: '#018CC8',
+    borderWidth: 2,
   },
 
   tabButtonText: {
@@ -278,7 +280,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   selectedTabButtonText: {
-    color: '#fff',
+    color: '#18181B',
   },
   contentContainer2: {
     marginTop: 20,

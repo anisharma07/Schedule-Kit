@@ -7,6 +7,7 @@ import {
   Animated,
   Easing,
   Alert,
+  Image,
 } from 'react-native';
 import useStore from '../store/store';
 
@@ -29,21 +30,23 @@ const CardMenu: React.FC<CardMenuProps> = ({
 }) => {
   const {removeCard, registers, undoChanges, renameRegister} = useStore();
   const [cardName, setCardName] = useState('');
-  const slideAnim = useRef(new Animated.Value(342)).current; // Initial position off-screen
+  const slideAnim = useRef(new Animated.Value(300)).current; // Initial position off-screen
+
   useEffect(() => {
     if (
-      RegisterId != -1 &&
-      CardId != -1 &&
+      RegisterId !== -1 &&
+      CardId !== -1 &&
       registers[RegisterId]?.cards[CardId]?.title
-    )
+    ) {
       setCardName(registers[RegisterId].cards[CardId].title);
+    }
   }, [RegisterId, CardId]);
 
   useEffect(() => {
     Animated.timing(slideAnim, {
-      toValue: isVisible ? 0 : 342, // Slide up to 0 if visible, down to 300 if not
-      duration: 342,
-      easing: Easing.ease,
+      toValue: isVisible ? 0 : 300, // Slide up to 0 if visible, down to 342 if not
+      duration: 300, // Adjust duration as needed
+      easing: Easing.inOut(Easing.quad), // Smoother easing
       useNativeDriver: true,
     }).start();
   }, [isVisible]);
@@ -89,16 +92,32 @@ const CardMenu: React.FC<CardMenuProps> = ({
     <Animated.View
       style={[styles.container, {transform: [{translateY: slideAnim}]}]}>
       <TouchableOpacity style={styles.button} onPress={handleEdit}>
+        <Image
+          source={require('../assets/icons/card-menu/edit.png')}
+          style={{width: 20, height: 20}}
+        />
         <Text style={styles.buttonText}>Edit Subject</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleViewDetails}>
+        <Image
+          source={require('../assets/icons/card-menu/report.png')}
+          style={{width: 20, height: 20, objectFit: 'contain'}}
+        />
         <Text style={styles.buttonText}>View Details</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleUndoChanges}>
+        <Image
+          source={require('../assets/icons/card-menu/undo.png')}
+          style={{width: 18, height: 18, objectFit: 'contain'}}
+        />
         <Text style={styles.buttonText}>Undo Last Change</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleRemoveCard}>
+        <Image
+          source={require('../assets/icons/card-menu/delete.png')}
+          style={{width: 18, height: 18}}
+        />
         <Text style={styles.buttonText}>Delete Subject</Text>
       </TouchableOpacity>
     </Animated.View>
@@ -123,16 +142,17 @@ const styles = StyleSheet.create({
     zIndex: 1000000,
   },
   button: {
-    padding: 15,
+    width: '100%',
+    padding: 10,
+    paddingLeft: 40,
     maxWidth: 600,
-    backgroundColor: '#333',
+    flexDirection: 'row',
+    gap: 20,
     borderRadius: 10,
-    marginVertical: 5,
     marginHorizontal: 'auto',
   },
   buttonText: {
     color: '#fff',
-    textAlign: 'center',
     fontSize: 16,
   },
   closeButton: {

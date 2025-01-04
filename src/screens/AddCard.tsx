@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,20 @@ import {
   Alert,
   TouchableOpacity,
   Image,
+  Platform,
+  ToastAndroid,
+  Switch,
 } from 'react-native';
 import useStore from '../store/store';
 import {Days, CardInterface, Slots} from '../types/cards';
 import {Picker} from '@react-native-picker/picker';
-import {convertTo24Hrs, convertToUTM} from '../utils/functions';
+import {
+  convertTo24Hrs,
+  convertToStartSeconds,
+  convertToUTM,
+} from '../utils/functions';
 import Calendar from '../components/Calendar';
+import TagColorPicker from '../components/TagColorPicker';
 
 const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 type DayOfWeek = (typeof daysOfWeek)[number];
@@ -42,12 +50,14 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     useStore();
   const [currDayTime, setCurrDayTime] = useState<currDayTimeProps>({
     day: 'mon',
-    startTime: '00:00',
+    startTime: '10:00',
     isAM_start: true,
-    endTime: '00:00',
-    isAM_end: true,
+    endTime: '12:00',
+    isAM_end: false,
   });
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [includeAbsents, setIncludeAbsents] = useState(false);
+  const [frequency, setFrequency] = useState('0');
+  const registerName = registers[activeRegister].name;
 
   const [card, setCard] = useState<CardInterface>({
     id: 1,
@@ -55,7 +65,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     present: 0,
     total: 0,
     target_percentage: defaultTargetPercentage,
-    tagColor: '',
+    tagColor: '#FFFFFF',
     days: {
       mon: [],
       tue: [],
@@ -70,6 +80,12 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     limit: 0,
     limitType: 'with-absent',
   });
+  const setSelectedColor = (color: string) => {
+    setCard(prev => ({
+      ...prev,
+      tagColor: color,
+    }));
+  };
 
   const handleInputChange = (
     field: keyof CardInterface,
@@ -87,7 +103,24 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       [field]: value,
     }));
   };
-
+  const handleLimitToggle = (value: boolean) => {
+    setCard(prev => ({
+      ...prev,
+      hasLimit: value,
+    }));
+  };
+  const handleFreqUpdate = (value: string) => {
+    setCard(prev => ({
+      ...prev,
+      limit: parseInt(value),
+    }));
+  };
+  const handleLimitType = (value: boolean) => {
+    setCard(prev => ({
+      ...prev,
+      limitType: value == true ? 'with-absent' : 'without-absent',
+    }));
+  };
   const handleDayChange = (day: keyof Days) => {
     setCurrDayTime(prev => ({
       ...prev,
@@ -131,7 +164,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
 
   const handleAddTime = () => {
     if (currDayTime.startTime === '00:00' && currDayTime.endTime === '00:00') {
-      Alert.alert('Error', 'Please fill all required fields!');
+      Alert.alert('Error', 'Please fill Correct Time!');
       return;
     }
     if (card.days[currDayTime.day].length >= 3) {
@@ -153,7 +186,27 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       !isValidTime(currDayTime.startTime) ||
       !isValidTime(currDayTime.endTime)
     ) {
-      Alert.alert('Error', 'Time Should be in HH:MM Format!');
+      Alert.alert('Error', 'Please Fill Correct Time in HH:MM Format!');
+      return;
+    }
+
+    // is overlapping time
+    const newStartTime = convertToStartSeconds(
+      convertTo24Hrs(currDayTime.startTime, currDayTime.isAM_start),
+    );
+    const newEndTime = convertToStartSeconds(
+      convertTo24Hrs(currDayTime.endTime, currDayTime.isAM_end),
+    );
+    console.log(newStartTime, newEndTime);
+    const isOverlapping = card.days[currDayTime.day].some(
+      dayTime =>
+        (newStartTime >= convertToStartSeconds(dayTime.start) &&
+          newStartTime <= convertToStartSeconds(dayTime.end)) ||
+        (newEndTime >= convertToStartSeconds(dayTime.start) &&
+          newEndTime <= convertToStartSeconds(dayTime.end)),
+    );
+    if (isOverlapping) {
+      Alert.alert('Error', 'Time Slot Overlaps with existing slot!');
       return;
     }
 
@@ -173,6 +226,9 @@ const AddCard: React.FC = ({navigation, route}: any) => {
         ],
       },
     }));
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('New Slot Added', ToastAndroid.SHORT);
+    }
   };
 
   const handleRemoveTime = (day: string, dayTime: Slots) => {
@@ -187,22 +243,84 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     }));
   };
 
+  const handleClearCard = () => {
+    const newCard = {
+      id: 1,
+      title: '',
+      present: 0,
+      total: 0,
+      target_percentage: defaultTargetPercentage,
+      tagColor: '',
+      days: {
+        mon: [],
+        tue: [],
+        wed: [],
+        thu: [],
+        fri: [],
+        sat: [],
+        sun: [],
+      },
+      markedAt: [],
+      hasLimit: false,
+      limit: 0,
+      limitType: 'with-absent',
+    };
+    setCard(newCard);
+  };
   const handleSubmit = () => {
     if (!card.title) {
       Alert.alert('Error', 'Please fill all required fields!');
       return;
     }
     if (card.total < card.present) {
-      Alert.alert('Error', 'total<presents');
+      Alert.alert('Error', 'total should be >= present');
+      return;
+    }
+    if (card.target_percentage > 100 || card.target_percentage < 0) {
+      Alert.alert('Error', 'Target Percentage should be between 0 and 100');
       return;
     }
     addCard(activeRegister, card);
     navigation.navigate('Tab');
     // Add logic to save or navigate
   };
+  const handleNavigateBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <View style={styles.topContainer}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleNavigateBack}>
+          <Image
+            source={require('../assets/images/back-btn.png')}
+            style={{width: 40, height: 40}}
+          />
+        </TouchableOpacity>
+        <Text style={{color: '#fff', fontSize: 24}}>
+          {registerName.length > 15
+            ? registerName.substring(0, 15) + '..'
+            : registerName}
+        </Text>
+        <View style={styles.functionButtons}>
+          <TouchableOpacity onPress={handleClearCard}>
+            <Image
+              source={require('../assets/images/clear.png')}
+              style={{width: 50, height: 50, objectFit: 'contain'}}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSubmit}>
+            <Image
+              source={require('../assets/images/save.png')}
+              style={{width: 50, height: 50, objectFit: 'contain'}}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View>
+        <Text style={styles.addCourseTxt}>Add New Course</Text>
+      </View>
+
       <ScrollView style={styles.container}>
         <Text style={styles.label}>Title</Text>
         <TextInput
@@ -259,23 +377,14 @@ const AddCard: React.FC = ({navigation, route}: any) => {
           }
         />
 
-        <Text style={styles.label}>Tag Color</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter tag color (e.g., #FF5733)"
-          placeholderTextColor="#999"
-          value={card.tagColor}
-          onChangeText={value => handleInputChange('tagColor', value)}
-        />
-
-        <Text style={styles.label}>Add Time</Text>
+        <Text style={styles.label}>Add Slots</Text>
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
+            marginBottom: 10,
           }}>
-          <Text style={styles.label}>Select Day: </Text>
           <View style={styles.pickerView}>
             <Picker
               selectedValue={currDayTime.day}
@@ -290,16 +399,17 @@ const AddCard: React.FC = ({navigation, route}: any) => {
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
             flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 10,
           }}>
-          <Text style={styles.label}>Select Time: </Text>
           <View
             style={{
               flexDirection: 'row',
-              justifyContent: 'space-between',
               gap: 8,
               flexWrap: 'wrap',
+              alignItems: 'center',
             }}>
             <TextInput
               style={styles.input}
@@ -307,7 +417,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               onChangeText={value => handleTimeChange('startTime', value)}
             />
             <TouchableOpacity onPress={toggleStartAM}>
-              <Text style={styles.input}>
+              <Text style={styles.ampm}>
                 {currDayTime.isAM_start ? 'AM' : 'PM'}
               </Text>
             </TouchableOpacity>
@@ -318,58 +428,115 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               onChangeText={value => handleTimeChange('endTime', value)}
             />
             <TouchableOpacity onPress={toggleEndAM}>
-              <Text style={styles.input}>
+              <Text style={styles.ampm}>
                 {currDayTime.isAM_end ? 'AM' : 'PM'}
               </Text>
             </TouchableOpacity>
           </View>
-          <ScrollView
-            horizontal
-            contentContainerStyle={styles.tabContainer}
-            showsHorizontalScrollIndicator={false}
-            style={styles.scrollView}>
-            {Object.keys(card.days).map(day =>
-              card.days[day as keyof Days].map((dayTime: Slots) => (
-                <View style={styles.tabViewStyle}>
-                  {' '}
-                  <TouchableOpacity
-                    key={dayTime.start}
-                    style={styles.tabButton}>
-                    <Text style={styles.tabLabel}>
-                      {daysOfWeekMap[day].substring(0, 3)},{' '}
-                      {convertToUTM(dayTime.start)}
-                      {' - '}
-                      {convertToUTM(dayTime.end)}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.removeTimeBtn}
-                    onPress={() => handleRemoveTime(day, dayTime)}>
-                    <Image
-                      source={require('../assets/icons/remove-time-btn.png')}
-                      style={styles.remove_time_btn}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )),
-            )}
-          </ScrollView>
+          <TouchableOpacity
+            style={styles.addTimeBtn}
+            onPress={() => handleAddTime()}>
+            <Text style={{color: '#fff', textAlign: 'center'}}>Add</Text>
+          </TouchableOpacity>
         </View>
-        {/* <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Calendar
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
-        </View> */}
-        <Button title="add time" onPress={() => handleAddTime()} />
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.tabContainer}
+          showsHorizontalScrollIndicator={false}
+          style={styles.scrollView}>
+          {Object.keys(card.days).map(day =>
+            card.days[day as keyof Days].map((dayTime: Slots) => (
+              <View style={styles.tabViewStyle}>
+                <TouchableOpacity key={dayTime.start} style={styles.tabButton}>
+                  <Text style={styles.tabLabel}>
+                    {daysOfWeekMap[day].substring(0, 3)},{' '}
+                    {convertToUTM(dayTime.start)}
+                    {' - '}
+                    {convertToUTM(dayTime.end)}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.removeTimeBtn}
+                  onPress={() => handleRemoveTime(day, dayTime)}>
+                  <Image
+                    source={require('../assets/icons/remove-time-btn.png')}
+                    style={styles.remove_time_btn}
+                  />
+                </TouchableOpacity>
+              </View>
+            )),
+          )}
+        </ScrollView>
 
-        <Button title="Submit" onPress={handleSubmit} />
+        <Text style={styles.label}>Tag Color</Text>
+        <TagColorPicker
+          selectedColor={card.tagColor}
+          setSelectedColor={setSelectedColor}
+        />
+        <View style={styles.container3}>
+          {/* Activity Frequency */}
+          <View style={styles.row}>
+            <Text style={styles.label3}>Activity Frequency</Text>
+            <Switch
+              value={card.hasLimit}
+              onValueChange={value => handleLimitToggle(value)}
+            />
+          </View>
+          {/* hasLimit: false,
+    limit: 0,
+    limitType: 'with-absent', */}
+          {/* Frequency Input */}
+          <View style={styles.row}>
+            <Text style={styles.label}>Frequency</Text>
+            <TextInput
+              style={styles.input3}
+              keyboardType="numeric"
+              value={card.limit.toString()}
+              onChangeText={text => handleFreqUpdate(text)}
+            />
+          </View>
+
+          {/* Include Absents */}
+          <View style={styles.row}>
+            <Text style={styles.label3}>Include Absents</Text>
+            <Switch
+              value={card.limitType === 'with-absent' ? true : false}
+              onValueChange={value => handleLimitType(value)}
+            />
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  header: {
+    borderRadius: 15,
+    width: '100%',
+    margin: 'auto',
+    paddingBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  functionButtons: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  addCourseTxt: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'left',
+    marginBottom: 20,
+  },
+  todayIcon: {
+    width: 35,
+    height: 35,
+  },
+
   topContainer: {
     flex: 1,
     backgroundColor: '#18181B',
@@ -384,7 +551,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
   },
   tabViewStyle: {
     position: 'relative',
@@ -409,7 +575,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#18181B',
-    padding: 0,
+    paddingHorizontal: 5,
   },
   // sideLabel: {
   //   fontSize: 16,
@@ -427,11 +593,29 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
   },
+  addTimeBtn: {
+    backgroundColor: '#CE0000',
+    borderRadius: 8,
+    padding: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 'auto',
+  },
   subLabel: {
     fontSize: 14,
     color: '#ccc',
     marginBottom: 4,
     marginTop: 8,
+  },
+  ampm: {
+    backgroundColor: '#1F1F22',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#464646',
   },
   input: {
     backgroundColor: '#1F1F22',
@@ -446,7 +630,7 @@ const styles = StyleSheet.create({
   pickerView: {
     borderWidth: 1,
     borderColor: '#464646',
-    width: '65%',
+    width: '100%',
     minWidth: 160,
     marginBottom: 8,
     borderRadius: 8,
@@ -456,6 +640,31 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: '#fff',
+  },
+  container3: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#1E1E1E', // Dark background
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  label3: {
+    fontSize: 16,
+    color: '#FFFFFF', // White text
+  },
+  input3: {
+    width: 60,
+    height: 40,
+    backgroundColor: '#333',
+    color: '#FFF',
+    textAlign: 'center',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#555',
   },
 });
 
