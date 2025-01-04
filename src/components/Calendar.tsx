@@ -1,12 +1,25 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+} from 'react-native';
+import {Markings} from '../types/cards';
 
 interface CalendarProps {
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
+  markedArr: Markings[];
 }
 
-const Calendar: React.FC<CalendarProps> = ({selectedDate, setSelectedDate}) => {
+const Calendar: React.FC<CalendarProps> = ({
+  selectedDate,
+  setSelectedDate,
+  markedArr,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
 
   const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -54,6 +67,23 @@ const Calendar: React.FC<CalendarProps> = ({selectedDate, setSelectedDate}) => {
       date.getFullYear() === selectedDate.getFullYear()
     );
   };
+  const findColor = (item: Date | null) => {
+    if (item == null) return '#121212';
+    const day = item.getDate();
+    const month = item.getMonth();
+    const year = item.getFullYear();
+    const marks = markedArr.filter(
+      date =>
+        new Date(date.date).toLocaleDateString() ===
+        new Date(year, month, day).toLocaleDateString(),
+    );
+    if (marks.length === 0) return '#121212';
+    const presents = marks.filter(date => date.isPresent).length;
+    const absents = marks.length - presents;
+    if (presents > absents) return 'green';
+    if (absents > presents) return 'red';
+    if (presents === absents) return '#BE5200';
+  };
 
   const days = getDaysInMonth(currentMonth);
 
@@ -75,11 +105,17 @@ const Calendar: React.FC<CalendarProps> = ({selectedDate, setSelectedDate}) => {
 
       {/* Week Days */}
       <View style={styles.weekRow}>
-        {daysOfWeek.map(day => (
-          <Text key={day} style={styles.weekDay}>
-            {day}
-          </Text>
-        ))}
+        {daysOfWeek.map(day =>
+          day === 'sun' ? (
+            <Text key={day} style={styles.sunDay}>
+              {day}
+            </Text>
+          ) : (
+            <Text key={day} style={styles.weekDay}>
+              {day}
+            </Text>
+          ),
+        )}
       </View>
 
       {/* Days Grid */}
@@ -88,15 +124,17 @@ const Calendar: React.FC<CalendarProps> = ({selectedDate, setSelectedDate}) => {
         numColumns={7}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => (
-          <TouchableOpacity
-            style={[
-              styles.dayCell,
-              isToday(item) && styles.todayCell,
-              isSelected(item) && styles.selectedCell,
-            ]}
-            onPress={() => item && setSelectedDate(item)}>
-            <Text style={styles.dayText}>{item ? item.getDate() : ''}</Text>
-          </TouchableOpacity>
+          <View style={styles.dayCell}>
+            <TouchableOpacity
+              style={[
+                styles.cellButton,
+                isSelected(item) && styles.selectedCell,
+                {backgroundColor: isToday(item) ? '#007BFF' : findColor(item)},
+              ]}
+              onPress={() => item && setSelectedDate(item)}>
+              <Text style={styles.dayText}>{item ? item.getDate() : ''}</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
     </View>
@@ -107,13 +145,18 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     backgroundColor: '#121212',
-    borderRadius: 10,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#3A3A3A',
+    width: Dimensions.get('window').width - 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    paddingBottom: 15,
+    borderBottomColor: '#3A3A3A',
+    borderWidth: 1,
   },
   headerText: {
     color: 'white',
@@ -122,37 +165,48 @@ const styles = StyleSheet.create({
   },
   navButton: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 18,
   },
   weekRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginTop: 15,
     marginBottom: 5,
   },
-  weekDay: {
+  sunDay: {
     color: 'red',
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    width: '14%',
+    width: Dimensions.get('window').width / 8,
+    textAlign: 'center',
+  },
+  weekDay: {
+    color: 'white',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    width: Dimensions.get('window').width / 8,
     textAlign: 'center',
   },
   dayCell: {
-    width: 40,
-    height: 40,
+    width: Dimensions.get('window').width / 8,
+    height: Dimensions.get('window').width / 8,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 5,
-    borderRadius: 5,
+  },
+  cellButton: {
+    width: '75%',
+    height: '75%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
   },
   dayText: {
     color: 'white',
     fontSize: 16,
   },
-  todayCell: {
-    backgroundColor: '#007BFF',
-  },
   selectedCell: {
-    backgroundColor: 'green',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
 });
 

@@ -12,6 +12,11 @@ export interface Days {
   sat: Slots[];
   sun: Slots[];
 }
+export interface Markings {
+  id: number;
+  date: string;
+  isPresent: boolean;
+}
 
 export interface CardInterface {
   id: number;
@@ -21,7 +26,7 @@ export interface CardInterface {
   target_percentage: number;
   tagColor: string;
   days: Days;
-  markedAt: string[];
+  markedAt: Markings[];
   hasLimit: boolean;
   limit: number;
   limitType: string; // with-absent, without-absent

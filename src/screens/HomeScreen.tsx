@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  Text,
   TouchableOpacity,
   Image,
 } from 'react-native';
@@ -15,27 +16,24 @@ import {CardInterface} from '../types/cards';
 import Header from '../components/Header';
 interface HomeScreenProps {
   toggleSidebar: () => void;
+  handleMenuOpen: (r: number, c: number) => void;
+  isChange: boolean;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   navigation,
-  route,
   toggleSidebar,
+  handleMenuOpen,
+  isChange,
 }: any) => {
   const {registers, activeRegister, updatedAt, setRegisterCardSize} =
     useStore();
   const [cardSize, setCardSize] = useState('normal');
   const [currentRegister, setCurrentRegister] = useState<CardInterface[]>([]);
-
   useEffect(() => {
     setCurrentRegister(registers[activeRegister]?.cards || []);
-    // console.log('lele', registers['default'][0]?.days);
     setCardSize(registers[activeRegister]?.card_size);
   }, [updatedAt, activeRegister]);
-
-  const handleEdit = (id: number) => {
-    navigation.navigate('Edit', {card_register: activeRegister, card_id: id});
-  };
 
   const toggleSort = () => {
     if (cardSize == 'small') setRegisterCardSize(activeRegister, 'normal');
@@ -49,14 +47,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         changeStack={navigation.navigate}
         registerName={registers[activeRegister]?.name}
       />
+      {currentRegister.length == 0 && (
+        <View style={styles.emptyContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('Add')}>
+            <Image
+              source={require('../assets/images/add-icon.png')}
+              style={{width: 80, height: 80}}
+            />
+          </TouchableOpacity>
+          <Text style={styles.emptyText}>Click Add Button to Add Subject</Text>
+        </View>
+      )}
       {/* Custom Drawer */}
-
-      <TouchableOpacity onPress={toggleSort}>
-        <Image
-          source={require('../assets/images/logo.png')}
-          style={styles.logo}
-        />
-      </TouchableOpacity>
       {/* Cards  */}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -70,7 +72,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         {currentRegister.map((card, index) =>
           cardSize == 'small' ? (
             <MiniCard
-              key={index}
+              key={card.id}
               id={card.id}
               title={card.title}
               present={card.present}
@@ -78,24 +80,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               target_percentage={card.target_percentage}
               tagColor={card.tagColor}
               activeRegister={activeRegister}
-              handleEdit={handleEdit}
+              handlMenuOpen={handleMenuOpen}
             />
           ) : (
             <Card
-              key={index}
+              key={card.id}
               id={card.id}
               title={card.title}
               present={card.present}
               total={card.total}
               target_percentage={card.target_percentage}
               tagColor={card.tagColor}
-              activeRegister={activeRegister}
-              handleEdit={handleEdit}
+              cardRegister={activeRegister}
+              handleMenuOpen={handleMenuOpen}
+              isChange={isChange}
             />
           ),
         )}
+
         <Spacer />
       </ScrollView>
+
       {/* <Footer navigate={navigate} /> */}
     </View>
   );
@@ -114,6 +119,18 @@ const styles = StyleSheet.create({
     height: 50,
     marginLeft: '50%',
   },
+  emptyContainer: {
+    color: '#fff',
+    height: Dimensions.get('window').height - 200,
+    gap: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#5A5A5A',
+    fontSize: 20,
+  },
+
   contentContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',

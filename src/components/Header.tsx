@@ -14,7 +14,7 @@ const Header: React.FC<Props> = ({toggler, changeStack, registerName}) => {
         <TouchableOpacity onPress={toggler}>
           <Image
             source={require('../assets/images/registers.png')}
-            style={{width: 40, height: 40}}
+            style={{width: 45, height: 45}}
           />
         </TouchableOpacity>
 
@@ -27,11 +27,10 @@ const Header: React.FC<Props> = ({toggler, changeStack, registerName}) => {
           }}>
           {registerName}
         </Text>
-        <TouchableOpacity onPress={() => changeStack('Add')}>
-          <Image
-            source={require('../assets/images/profile.png')}
-            style={{width: 40, height: 40}}
-          />
+        <TouchableOpacity
+          onPress={() => changeStack('Add')}
+          style={styles.addBtn}>
+          <Text style={{color: 'white', fontSize: 20}}>Add</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -52,6 +51,13 @@ const styles = StyleSheet.create({
     width: '92%',
     paddingBottom: 5,
     paddingTop: 10,
+  },
+  addBtn: {
+    padding: 5,
+    paddingHorizontal: 15,
+    backgroundColor: '#690000',
+    borderRadius: 10,
+    textAlign: 'center',
   },
 });
 

@@ -17,6 +17,7 @@ interface StoreState {
   activeRegister: number;
   updatedAt: Date | null;
   defaultTargetPercentage: number;
+  updateDate: (date: Date) => void;
   changeCopyRegister: (registerId: number) => void;
   setActiveRegister: (registerId: number) => void;
   addRegister: (registerId: number, registerName: string) => void;
@@ -25,12 +26,13 @@ interface StoreState {
   addCard: (registerId: number, cardData: CardInterface) => void;
   markPresent: (registerId: number, cardId: number) => void;
   markAbsent: (registerId: number, id: number) => void;
-  undoChanges: (
+  removeMarking: (
     registerId: number,
     cardId: number,
-    present: number,
-    total: number,
+    markingId: number,
   ) => void;
+  undoChanges: (registerId: number, cardId: number) => void;
+
   editCard: (registerId: number, card: CardInterface, cardId: number) => void;
   setRegisterCardSize: (registerId: number, inputSize: string) => void;
   removeCard: (registerId: number, cardIndex: number) => void;
@@ -41,7 +43,7 @@ export const useStore = create<StoreState>()(
     set => ({
       registers: {
         0: {
-          name: 'Reg 1',
+          name: 'Register 1',
           cards: [],
           card_size: 'small',
         },
@@ -60,10 +62,10 @@ export const useStore = create<StoreState>()(
         set(() => ({
           activeRegister: registerId,
         })),
-      // updateDate: (date: Date) =>
-      //   set(() => ({
-      //     updatedAt: date,
-      //   })),
+      updateDate: (date: Date) =>
+        set(() => ({
+          updatedAt: date,
+        })),
       addRegister: (registerId: number, registerName: string) =>
         set(state => ({
           registers: {
@@ -133,7 +135,19 @@ export const useStore = create<StoreState>()(
               ...state.registers[registerId],
               cards: state.registers[registerId].cards.map(card =>
                 card.id === cardId
-                  ? {...card, present: card.present + 1, total: card.total + 1}
+                  ? {
+                      ...card,
+                      present: card.present + 1,
+                      total: card.total + 1,
+                      markedAt: [
+                        ...card.markedAt,
+                        {
+                          id: card.markedAt.length + 1,
+                          date: new Date().toString(),
+                          isPresent: true,
+                        },
+                      ],
+                    }
                   : card,
               ),
             },
@@ -147,35 +161,108 @@ export const useStore = create<StoreState>()(
             [registerId]: {
               ...state.registers[registerId],
               cards: state.registers[registerId].cards.map(card =>
-                card.id === cardId ? {...card, total: card.total + 1} : card,
-              ),
-            },
-          },
-        })),
-
-      undoChanges: (
-        registerId: number,
-        cardId: number,
-        present: number,
-        absent: number,
-      ) =>
-        set(state => ({
-          registers: {
-            ...state.registers,
-            [registerId]: {
-              ...state.registers[registerId],
-              cards: state.registers[registerId].cards.map(card =>
                 card.id === cardId
                   ? {
                       ...card,
-                      present: card.present - present,
-                      total: card.total - present - absent,
+                      total: card.total + 1,
+                      markedAt: [
+                        ...card.markedAt,
+                        {
+                          id: card.markedAt.length + 1,
+                          date: new Date().toString(),
+                          isPresent: false,
+                        },
+                      ],
                     }
                   : card,
               ),
             },
           },
         })),
+      removeMarking: (registerId: number, cardId: number, markingId: number) =>
+        set(state => {
+          const register = state.registers[registerId];
+          const card = register.cards.find(card => card.id === cardId);
+
+          if (!card) {
+            return state;
+          }
+
+          // Remove the marking
+          const newMarkedAt = card.markedAt
+            .filter(marking => marking.id !== markingId)
+            .map((marking, index) => ({
+              ...marking,
+              id: index + 1,
+            }));
+
+          // Update present and total
+          const marking = card.markedAt.find(
+            marking => marking.id === markingId,
+          );
+          const newPresent = card.present - (marking?.isPresent ? 1 : 0);
+          const newTotal = card.total - 1;
+
+          return {
+            ...state,
+            registers: {
+              ...state.registers,
+              [registerId]: {
+                ...state.registers[registerId],
+                cards: state.registers[registerId].cards.map(card =>
+                  card.id === cardId
+                    ? {
+                        ...card,
+                        markedAt: newMarkedAt,
+                        present: newPresent,
+                        total: newTotal,
+                      }
+                    : card,
+                ),
+              },
+            },
+            updatedAt: new Date(),
+          };
+        }),
+
+      undoChanges: (registerId: number, cardId: number) =>
+        set(state => {
+          const register = state.registers[registerId];
+          const card = register.cards.find(card => card.id === cardId);
+
+          if (!card || card.markedAt.length === 0) {
+            return state;
+          }
+
+          // Remove the last markedAt object
+          const newMarkedAt = card.markedAt.slice(0, -1);
+
+          // Update present and total
+          const lastMarkedAt = card.markedAt[card.markedAt.length - 1];
+          const newPresent = card.present - (lastMarkedAt.isPresent ? 1 : 0);
+          const newTotal = card.total - 1;
+
+          return {
+            ...state,
+            registers: {
+              ...state.registers,
+              [registerId]: {
+                ...state.registers[registerId],
+                cards: state.registers[registerId].cards.map(card =>
+                  card.id === cardId
+                    ? {
+                        ...card,
+                        markedAt: newMarkedAt,
+                        present: newPresent,
+                        total: newTotal,
+                      }
+                    : card,
+                ),
+              },
+            },
+          };
+        }),
+
       editCard: (registerId: number, card: CardInterface, cardId: number) =>
         set(state => ({
           registers: {
@@ -201,17 +288,21 @@ export const useStore = create<StoreState>()(
           updatedAt: new Date(),
         })),
 
-      removeCard: (registerId: number, cardIndex: number) =>
+      removeCard: (registerId: number, cardId: number) =>
         set(state => ({
           registers: {
             ...state.registers,
             [registerId]: {
               ...state.registers[registerId],
-              cards: state.registers[registerId].cards.filter(
-                (_, index) => index !== cardIndex,
-              ),
+              cards: state.registers[registerId].cards
+                .filter(card => card.id !== cardId)
+                .map((card, index) => ({
+                  ...card,
+                  id: index,
+                })),
             },
           },
+          updatedAt: new Date(),
         })),
     }),
     {

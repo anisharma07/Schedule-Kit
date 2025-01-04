@@ -15,5 +15,12 @@ const convertTo24Hrs = (time: string, isAM: boolean): string => {
   const convertedHour = isAM ? (hour == 12 ? '00' : hour) : hour + 12;
   return `${convertedHour}:${minute}`;
 };
+const formatToHHMM = (dateString: string): string => {
+  const date = new Date(dateString);
+  return `${date.getHours().toString().padStart(2, '0')}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}`;
+};
 
-export {convertToUTM, convertTo24Hrs};
+export {convertToUTM, convertTo24Hrs, formatToHHMM};

@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import React from 'react';
 import {
   View,
@@ -6,13 +6,16 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
-import Header from '../components/Header';
 import useStore from '../store/store';
 import {CardInterface, SelectedDayCard, Days} from '../types/cards';
 import Card from '../components/Cards/Card';
 import Spacer from '../components/Spacer';
-
+interface TimeProps {
+  handleMenuOpen: (r: number, c: number) => void;
+  isChange: boolean;
+}
 const daysOfWeek = [
   'Sunday',
   'Monday',
@@ -60,8 +63,18 @@ const TabButtons: React.FC<TabButtonProps> = ({
   setSelectedDay,
   activeDay,
 }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const activeDayIndex = daysOfWeek.indexOf(activeDay);
+    if (scrollViewRef.current && activeDayIndex !== -1) {
+      const scrollToX = activeDayIndex * 100; // Assuming each button has a width of 100
+      scrollViewRef.current.scrollTo({x: scrollToX, animated: true});
+    }
+  }, [activeDay]);
   return (
     <ScrollView
+      ref={scrollViewRef}
       horizontal
       contentContainerStyle={styles.tabContainer}
       showsHorizontalScrollIndicator={false}
@@ -88,7 +101,12 @@ const TabButtons: React.FC<TabButtonProps> = ({
   );
 };
 
-const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
+const TimeTableScreen: React.FC<TimeProps> = ({
+  navigation,
+  route,
+  isChange,
+  handleMenuOpen,
+}: any) => {
   const {registers, activeRegister} = useStore();
   const [displayCards, setDisplayCards] = useState<SelectedDayCard[]>([]);
   const formatDate = (date: Date) => {
@@ -138,11 +156,6 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
 
   return (
     <View style={styles.container}>
-      {/* <Header
-        toggler={toggleSidebar}
-        changeStack={navigation.navigate}
-        registerName={registers[activeRegister]?.name}
-      /> */}
       <View style={styles.contentContainer2}>
         <Text style={styles.selectedDayText}>
           {selectedDay === activeDay ? 'Today' : selectedDay}
@@ -157,7 +170,11 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
         setSelectedDay={setSelectedDay}
         activeDay={activeDay}
       />
-
+      {displayCards.length == 0 && (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No Events to Display</Text>
+        </View>
+      )}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView2}
@@ -177,8 +194,9 @@ const TimeTableScreen: React.FC = ({navigation, route, toggleSidebar}: any) => {
                   total={card.total}
                   target_percentage={card.target_percentage}
                   tagColor={card.tagColor}
-                  activeRegister={activeRegister}
-                  handleEdit={handleEdit}
+                  cardRegister={activeRegister}
+                  isChange={isChange}
+                  handleMenuOpen={handleMenuOpen}
                 />
               ))}
             </>
@@ -216,14 +234,26 @@ const styles = StyleSheet.create({
   scrollView2: {
     flex: 1,
   },
+  emptyContainer: {
+    color: '#fff',
+    height: Dimensions.get('window').height - 400,
+    gap: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#5A5A5A',
+    fontSize: 20,
+  },
+
   tabContainer: {
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   tabButton: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginHorizontal: 3,
+    paddingHorizontal: 20,
+    marginHorizontal: 5,
     borderRadius: 50,
     borderWidth: 2,
     borderColor: '#3D3D3D',

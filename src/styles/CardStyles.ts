@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     gap: 15,
-    marginRight: 15,
   },
   circularContainer: {
     position: 'relative',

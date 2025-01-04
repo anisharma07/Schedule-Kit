@@ -9,33 +9,13 @@ import {
   Alert,
 } from 'react-native';
 import useStore from '../store/store';
-
-interface Days {
-  mon: string[];
-  tue: string[];
-  wed: string[];
-  thu: string[];
-  fri: string[];
-  sat: string[];
-  sun: string[];
-}
-
-interface Card {
-  id: number;
-  title: string;
-  present: number;
-  total: number;
-  target_percentage: number;
-  tagColor: string;
-  days: Days;
-  markedAt: string[];
-}
+import {CardInterface, Days} from '../types/cards';
 
 const EditCard: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
   const {editCard, registers} = useStore();
 
-  const [card, setCard] = useState<Card>({
+  const [card, setCard] = useState<CardInterface>({
     id: 1,
     title: '',
     present: 0,
@@ -52,6 +32,9 @@ const EditCard: React.FC = ({navigation, route}: any) => {
       sun: [],
     },
     markedAt: [],
+    hasLimit: false,
+    limit: 0,
+    limitType: 'with-absent',
   });
   useEffect(() => {
     const currCard = registers[card_register]?.cards?.find(
@@ -59,7 +42,10 @@ const EditCard: React.FC = ({navigation, route}: any) => {
     );
     if (currCard) setCard(currCard);
   }, [card_register, card_id]);
-  const handleInputChange = (field: keyof Card, value: string | number) => {
+  const handleInputChange = (
+    field: keyof CardInterface,
+    value: string | number,
+  ) => {
     setCard(prev => ({
       ...prev,
       [field]: value,

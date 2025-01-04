@@ -3,7 +3,6 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Sidebar from '../components/Sidebar';
 import AiScreen from '../screens/AiScreen';
 import TimeTableScreen from '../screens/TimeTableScreen';
-import TeamsScreen from '../screens/TeamsScreen';
 
 import {
   Animated,
@@ -12,24 +11,41 @@ import {
   TouchableOpacity,
   Easing,
   PanResponder,
+  View,
 } from 'react-native';
 import CustomTabBar from '../components/CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import CardMenu from '../components/CardMenu';
 const {width} = Dimensions.get('window');
 
 type TabParamList = {
   Home: undefined;
-  Teams: undefined;
   Ai: undefined;
   Time: undefined;
   Settings: undefined;
 };
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const Tabs: React.FC = () => {
+const Tabs: React.FC = ({navigation}: any) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cardId, setCardId] = useState(-1);
+  const [registerId, setRegisterId] = useState(-1);
+  const [isChange, setIsChange] = useState(false);
+
   const sidebarTranslate = useRef(new Animated.Value(-width * 0.8)).current;
+
+  const CloseCardMenu = () => {
+    setRegisterId(-1);
+    setCardId(-1);
+    setIsMenuOpen(false);
+  };
+  const handleMenuOpen = (RegisterId: number, CardId: number) => {
+    setCardId(CardId);
+    setRegisterId(RegisterId);
+    setIsMenuOpen(true);
+  };
 
   const toggleSidebar = () => {
     Animated.timing(sidebarTranslate, {
@@ -92,11 +108,25 @@ const Tabs: React.FC = () => {
           tabBarStyle: {backgroundColor: '#000000'},
         }}>
         <Tab.Screen name="Home">
-          {props => <HomeScreen {...props} toggleSidebar={toggleSidebar} />}
+          {props => (
+            <HomeScreen
+              {...props}
+              toggleSidebar={toggleSidebar}
+              handleMenuOpen={handleMenuOpen}
+              isChange={isChange}
+            />
+          )}
         </Tab.Screen>
-        <Tab.Screen name="Teams" component={TeamsScreen} />
         <Tab.Screen name="Ai" component={AiScreen} />
-        <Tab.Screen name="Time" component={TimeTableScreen} />
+        <Tab.Screen name="Time">
+          {props => (
+            <TimeTableScreen
+              {...props}
+              handleMenuOpen={handleMenuOpen}
+              isChange={isChange}
+            />
+          )}
+        </Tab.Screen>
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
       {/* SIDEBAR  */}
@@ -114,6 +144,26 @@ const Tabs: React.FC = () => {
         {...panResponder.panHandlers}>
         <Sidebar closeSideBar={toggleSidebar} />
       </Animated.View>
+      {/* card menu  */}
+      {isMenuOpen && registerId != -1 && cardId != -1 && (
+        <View
+          style={styles.overlay}
+          pointerEvents={isMenuOpen ? 'auto' : 'none'}>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={StyleSheet.absoluteFill}
+            onPress={CloseCardMenu}
+          />
+        </View>
+      )}
+      <CardMenu
+        isVisible={isMenuOpen}
+        onClose={CloseCardMenu}
+        RegisterId={registerId}
+        CardId={cardId}
+        navigation={navigation}
+        makeChange={() => setIsChange(!isChange)}
+      />
     </>
   );
 };

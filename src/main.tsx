@@ -6,11 +6,13 @@ import {StyleSheet} from 'react-native';
 import Tabs from './Tabs/Tabs';
 import AddCard from './screens/AddCard';
 import EditCard from './screens/EditCard';
+import ViewCardDetails from './screens/ViewCardDetails';
 
 type RootStackParamList = {
   Tab: undefined;
   Add: undefined;
   Edit: {card_register: number; card_id: number};
+  CardDetails: {card_register: number; card_id: number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -33,6 +35,11 @@ const MainApp = ({}) => {
         <Stack.Screen
           name="Edit"
           component={EditCard}
+          options={{animation: 'slide_from_right'}}
+        />
+        <Stack.Screen
+          name="CardDetails"
+          component={ViewCardDetails}
           options={{animation: 'slide_from_right'}}
         />
       </Stack.Navigator>

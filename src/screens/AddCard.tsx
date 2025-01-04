@@ -355,12 +355,12 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             )}
           </ScrollView>
         </View>
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        {/* <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Calendar
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
           />
-        </View>
+        </View> */}
         <Button title="add time" onPress={() => handleAddTime()} />
 
         <Button title="Submit" onPress={handleSubmit} />
