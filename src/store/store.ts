@@ -45,7 +45,7 @@ export const useStore = create<StoreState>()(
         0: {
           name: 'Register 1',
           cards: [],
-          card_size: 'small',
+          card_size: 'normal',
         },
       },
       activeRegister: 0,
@@ -260,6 +260,7 @@ export const useStore = create<StoreState>()(
                 ),
               },
             },
+            updatedAt: new Date(),
           };
         }),
 

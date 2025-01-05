@@ -14,7 +14,6 @@ import Card from '../components/Cards/Card';
 import Spacer from '../components/Spacer';
 interface TimeProps {
   handleMenuOpen: (r: number, c: number) => void;
-  isChange: boolean;
 }
 const daysOfWeek = [
   'Sunday',
@@ -104,7 +103,6 @@ const TabButtons: React.FC<TabButtonProps> = ({
 const TimeTableScreen: React.FC<TimeProps> = ({
   navigation,
   route,
-  isChange,
   handleMenuOpen,
 }: any) => {
   const {registers, activeRegister} = useStore();
@@ -185,9 +183,9 @@ const TimeTableScreen: React.FC<TimeProps> = ({
               <Text key={index} style={styles.cardSlotTime}>
                 {cardSlot.time}
               </Text>
-              {cardSlot.card.map(card => (
+              {cardSlot.card.map((card, ind) => (
                 <Card
-                  key={card.id}
+                  key={ind}
                   id={card.id}
                   title={card.title}
                   present={card.present}
@@ -195,8 +193,10 @@ const TimeTableScreen: React.FC<TimeProps> = ({
                   target_percentage={card.target_percentage}
                   tagColor={card.tagColor}
                   cardRegister={activeRegister}
-                  isChange={isChange}
                   handleMenuOpen={handleMenuOpen}
+                  hasLimit={card.hasLimit}
+                  limitFreq={card.limit}
+                  limitType={card.limitType}
                 />
               ))}
             </>

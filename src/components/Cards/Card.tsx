@@ -12,8 +12,10 @@ interface CardProps {
   target_percentage: number;
   tagColor: string;
   cardRegister: number;
-  isChange: boolean;
   handleMenuOpen: (r: number, c: number) => void;
+  hasLimit: boolean;
+  limitFreq: number;
+  limitType: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -24,18 +26,58 @@ const Card: React.FC<CardProps> = ({
   target_percentage,
   tagColor,
   cardRegister,
-  isChange,
+  hasLimit,
+  limitFreq,
+  limitType,
   handleMenuOpen,
 }) => {
-  const {registers} = useStore();
   const {markPresent, markAbsent} = useStore();
   const [percentage, setPercentage] = useState(0);
   const [cardColor, setCardColor] = useState('#892B2B');
   const [cardPresents, setCardPresents] = useState(present);
   const [cardTotals, setCardTotals] = useState(total);
+  const [cardStatus, setCardStatus] = useState('on track');
 
-  useEffect(() => {}, [isChange]);
+  useEffect(() => {
+    setCardPresents(present);
+    setCardTotals(total);
+  }, [present, total]);
 
+  useEffect(() => {
+    setCardStatus(getStatus());
+  }, [cardPresents, cardTotals]);
+
+  const getStatus = () => {
+    if (percentage > target_percentage) {
+      let totalClasses = cardTotals + 1;
+      let myPercentage = percentage;
+      let canLeave = -1;
+      while (myPercentage >= target_percentage) {
+        myPercentage = (cardPresents / totalClasses) * 100;
+        canLeave++;
+        totalClasses++;
+      }
+
+      if (canLeave === 0) return 'cannot leave next class';
+      if (canLeave === 1) return 'can leave next class';
+      else return 'can leave next ' + canLeave + ' classes';
+    } else if (Math.round(percentage) == Math.round(target_percentage)) {
+      return 'on track';
+    } else {
+      let totalClasses = cardTotals;
+      let presentClasses = cardPresents;
+      let myPercentage = percentage;
+      let cannotMiss = 0;
+      while (myPercentage < target_percentage) {
+        myPercentage = (presentClasses / totalClasses) * 100;
+        cannotMiss++;
+        presentClasses++;
+        totalClasses++;
+      }
+      if (cannotMiss === 1) return 'attend next class';
+      else return 'attend next ' + cannotMiss + ' classes';
+    }
+  };
   const MarkPresent = () => {
     setCardPresents(prev => prev + 1);
     setCardTotals(prev => prev + 1);
@@ -83,7 +125,19 @@ const Card: React.FC<CardProps> = ({
               {cardPresents}/{cardTotals}
             </Text>
           </View>
-          <Text style={styles.statusText}>classes left: 4</Text>
+          {hasLimit && (
+            <Text style={styles.statusText}>
+              Count left:{' '}
+              {Math.max(
+                0,
+                limitFreq -
+                  (limitType === 'with-absent' ? cardTotals : cardPresents),
+              )}
+            </Text>
+          )}
+          {!hasLimit && (
+            <Text style={styles.statusText}>Status: {cardStatus}</Text>
+          )}
         </View>
       </View>
       <View style={styles.rightBox}>

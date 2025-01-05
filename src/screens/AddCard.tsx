@@ -14,7 +14,7 @@ import {
   Switch,
 } from 'react-native';
 import useStore from '../store/store';
-import {Days, CardInterface, Slots} from '../types/cards';
+import {Days, CardInterface, Slots, Markings} from '../types/cards';
 import {Picker} from '@react-native-picker/picker';
 import {
   convertTo24Hrs,
@@ -77,7 +77,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     },
     markedAt: [],
     hasLimit: false,
-    limit: 0,
+    limit: 10,
     limitType: 'with-absent',
   });
   const setSelectedColor = (color: string) => {
@@ -197,7 +197,6 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     const newEndTime = convertToStartSeconds(
       convertTo24Hrs(currDayTime.endTime, currDayTime.isAM_end),
     );
-    console.log(newStartTime, newEndTime);
     const isOverlapping = card.days[currDayTime.day].some(
       dayTime =>
         (newStartTime >= convertToStartSeconds(dayTime.start) &&
@@ -250,7 +249,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       present: 0,
       total: 0,
       target_percentage: defaultTargetPercentage,
-      tagColor: '',
+      tagColor: '#FFFFFF',
       days: {
         mon: [],
         tue: [],
@@ -269,7 +268,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
   };
   const handleSubmit = () => {
     if (!card.title) {
-      Alert.alert('Error', 'Please fill all required fields!');
+      Alert.alert('Error', 'Please Enter Course Title!');
       return;
     }
     if (card.total < card.present) {
@@ -280,8 +279,31 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       Alert.alert('Error', 'Target Percentage should be between 0 and 100');
       return;
     }
-    addCard(activeRegister, card);
+    let newMarkings: Markings[] = [];
+    for (let i = 0; i < card.present; i++) {
+      newMarkings.push({
+        id: i,
+        date: new Date().toString(),
+        isPresent: true,
+      });
+    }
+    for (let i = card.present; i < card.total; i++) {
+      newMarkings.push({
+        id: i + 1,
+        date: new Date().toString(),
+        isPresent: false,
+      });
+    }
+    const markedCard: CardInterface = {
+      ...card,
+      markedAt: newMarkings,
+    };
+    addCard(activeRegister, markedCard);
+
     navigation.navigate('Tab');
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('New Course Added', ToastAndroid.SHORT);
+    }
     // Add logic to save or navigate
   };
   const handleNavigateBack = () => {
@@ -383,7 +405,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            marginBottom: 10,
+            marginBottom: 15,
           }}>
           <View style={styles.pickerView}>
             <Picker
@@ -402,17 +424,16 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 10,
+            marginBottom: 20,
           }}>
           <View
             style={{
               flexDirection: 'row',
               gap: 8,
-              flexWrap: 'wrap',
               alignItems: 'center',
             }}>
             <TextInput
-              style={styles.input}
+              style={styles.ampm}
               value={currDayTime.startTime}
               onChangeText={value => handleTimeChange('startTime', value)}
             />
@@ -423,7 +444,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             </TouchableOpacity>
             <Text style={styles.label}>to</Text>
             <TextInput
-              style={styles.input}
+              style={styles.ampm}
               value={currDayTime.endTime}
               onChangeText={value => handleTimeChange('endTime', value)}
             />
@@ -476,7 +497,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
         <View style={styles.container3}>
           {/* Activity Frequency */}
           <View style={styles.row}>
-            <Text style={styles.label3}>Activity Frequency</Text>
+            <Text style={styles.label3}>Show Course Frequency</Text>
             <Switch
               value={card.hasLimit}
               onValueChange={value => handleLimitToggle(value)}
@@ -486,24 +507,28 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     limit: 0,
     limitType: 'with-absent', */}
           {/* Frequency Input */}
-          <View style={styles.row}>
-            <Text style={styles.label}>Frequency</Text>
-            <TextInput
-              style={styles.input3}
-              keyboardType="numeric"
-              value={card.limit.toString()}
-              onChangeText={text => handleFreqUpdate(text)}
-            />
-          </View>
+          {card.hasLimit && (
+            <View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Course Frequency</Text>
+                <TextInput
+                  style={styles.input3}
+                  keyboardType="numeric"
+                  value={card.limit.toString()}
+                  onChangeText={text => handleFreqUpdate(text)}
+                />
+              </View>
 
-          {/* Include Absents */}
-          <View style={styles.row}>
-            <Text style={styles.label3}>Include Absents</Text>
-            <Switch
-              value={card.limitType === 'with-absent' ? true : false}
-              onValueChange={value => handleLimitType(value)}
-            />
-          </View>
+              {/* Include Absents */}
+              <View style={styles.row}>
+                <Text style={styles.label3}>Include Absents</Text>
+                <Switch
+                  value={card.limitType === 'with-absent' ? true : false}
+                  onValueChange={value => handleLimitType(value)}
+                />
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -557,13 +582,13 @@ const styles = StyleSheet.create({
   },
   removeTimeBtn: {
     position: 'absolute',
-    right: 3,
+    right: 7,
     top: -7,
   },
   tabButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    marginHorizontal: 10,
+    marginRight: 15,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: '#008817',
@@ -597,7 +622,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CE0000',
     borderRadius: 8,
     padding: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 'auto',
@@ -643,8 +668,7 @@ const styles = StyleSheet.create({
   },
   container3: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#1E1E1E', // Dark background
+    marginBottom: 80,
   },
   row: {
     flexDirection: 'row',

@@ -10,8 +10,8 @@ interface CardProps {
   total: number;
   target_percentage: number;
   tagColor: string;
-  activeRegister: number;
-  handlMenuOpen: (r: number, c: number) => void;
+  cardRegister: number;
+  handleMenuOpen: (r: number, c: number) => void;
 }
 const MiniCard: React.FC<CardProps> = ({
   id,
@@ -20,8 +20,8 @@ const MiniCard: React.FC<CardProps> = ({
   total,
   target_percentage,
   tagColor,
-  activeRegister,
-  handlMenuOpen,
+  cardRegister,
+  handleMenuOpen,
 }) => {
   const {markPresent, markAbsent} = useStore();
   const [percentage, setPercentage] = useState(0);
@@ -32,11 +32,11 @@ const MiniCard: React.FC<CardProps> = ({
   const MarkPresent = () => {
     setCardPresents(prev => prev + 1);
     setCardTotals(prev => prev + 1);
-    markPresent(activeRegister, id);
+    markPresent(cardRegister, id);
   };
   const MarkAbsent = () => {
     setCardTotals(prev => prev + 1);
-    markAbsent(activeRegister, id);
+    markAbsent(cardRegister, id);
   };
   useEffect(() => {
     const updatePercentage = () => {
@@ -79,11 +79,11 @@ const MiniCard: React.FC<CardProps> = ({
           style={[styles.miniCircularProgress, {backgroundColor: cardColor}]}>
           <Text style={styles.miniPercentageText}>{percentage}%</Text>
         </View>
-        <MiniConicGradient percentage={percentage} />
+        <MiniConicGradient percentage={percentage + 1} />
       </View>
       <TouchableOpacity
         style={styles.miniThreeDot}
-        onPress={() => handlMenuOpen(activeRegister, id)}>
+        onPress={() => handleMenuOpen(cardRegister, id)}>
         <Image
           source={require('../../assets/icons/three-dot.png')}
           style={styles.threeDot}

@@ -17,14 +17,12 @@ import Header from '../components/Header';
 interface HomeScreenProps {
   toggleSidebar: () => void;
   handleMenuOpen: (r: number, c: number) => void;
-  isChange: boolean;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   navigation,
   toggleSidebar,
   handleMenuOpen,
-  isChange,
 }: any) => {
   const {registers, activeRegister, updatedAt, setRegisterCardSize} =
     useStore();
@@ -69,20 +67,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         <Card />
         <Card />
         <Card /> */}
-        {currentRegister.map((card, index) =>
-          cardSize == 'small' ? (
-            <MiniCard
-              key={card.id}
-              id={card.id}
-              title={card.title}
-              present={card.present}
-              total={card.total}
-              target_percentage={card.target_percentage}
-              tagColor={card.tagColor}
-              activeRegister={activeRegister}
-              handlMenuOpen={handleMenuOpen}
-            />
-          ) : (
+        {cardSize == 'normal' &&
+          currentRegister.map((card, index) => (
             <Card
               key={card.id}
               id={card.id}
@@ -93,10 +79,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               tagColor={card.tagColor}
               cardRegister={activeRegister}
               handleMenuOpen={handleMenuOpen}
-              isChange={isChange}
+              hasLimit={card.hasLimit}
+              limitFreq={card.limit}
+              limitType={card.limitType}
             />
-          ),
-        )}
+          ))}
+        {cardSize == 'small' &&
+          currentRegister.map((card, index) => (
+            <MiniCard
+              key={card.id}
+              id={card.id}
+              title={card.title}
+              present={card.present}
+              total={card.total}
+              target_percentage={card.target_percentage}
+              tagColor={card.tagColor}
+              cardRegister={activeRegister}
+              handleMenuOpen={handleMenuOpen}
+            />
+          ))}
 
         <Spacer />
       </ScrollView>

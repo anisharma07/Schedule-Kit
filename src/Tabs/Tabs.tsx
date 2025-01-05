@@ -113,18 +113,13 @@ const Tabs: React.FC = ({navigation}: any) => {
               {...props}
               toggleSidebar={toggleSidebar}
               handleMenuOpen={handleMenuOpen}
-              isChange={isChange}
             />
           )}
         </Tab.Screen>
         <Tab.Screen name="Ai" component={AiScreen} />
         <Tab.Screen name="Time">
           {props => (
-            <TimeTableScreen
-              {...props}
-              handleMenuOpen={handleMenuOpen}
-              isChange={isChange}
-            />
+            <TimeTableScreen {...props} handleMenuOpen={handleMenuOpen} />
           )}
         </Tab.Screen>
         <Tab.Screen name="Settings" component={SettingsScreen} />
