@@ -154,6 +154,11 @@ const styles = StyleSheet.create({
     top: 3,
     right: 18,
   },
+  threeDotBig: {
+    position: 'absolute',
+    top: -12,
+    right: -8,
+  },
   miniLogo: {
     width: 24,
     height: 24,

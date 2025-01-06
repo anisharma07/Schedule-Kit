@@ -12,9 +12,11 @@ import useStore from '../store/store';
 import {CardInterface, SelectedDayCard, Days} from '../types/cards';
 import Card from '../components/Cards/Card';
 import Spacer from '../components/Spacer';
+import {convertToUTM} from '../utils/functions';
 interface TimeProps {
   handleMenuOpen: (r: number, c: number) => void;
 }
+let ind = 0;
 const daysOfWeek = [
   'Sunday',
   'Monday',
@@ -62,29 +64,37 @@ const TabButtons: React.FC<TabButtonProps> = ({
   setSelectedDay,
   activeDay,
 }) => {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
+  const [newDays, setNewDays] = useState(daysOfWeek);
 
   useEffect(() => {
-    const activeDayIndex = daysOfWeek.indexOf(activeDay);
-    if (scrollViewRef.current && activeDayIndex !== -1) {
-      const scrollToX = activeDayIndex * 100; // Assuming each button has a width of 100
-      scrollViewRef.current.scrollTo({x: scrollToX, animated: true});
-    }
+    setActiveDayIndex(daysOfWeek.indexOf(activeDay));
   }, [activeDay]);
+  useEffect(() => {
+    const newDays = [];
+    for (let i = activeDayIndex; i < daysOfWeek.length; i++) {
+      newDays.push(daysOfWeek[i]);
+    }
+    for (let i = 0; i < activeDayIndex; i++) {
+      newDays.push(daysOfWeek[i]);
+    }
+    setNewDays(newDays);
+  }, [activeDayIndex]);
+
   return (
     <ScrollView
-      ref={scrollViewRef}
       horizontal
       contentContainerStyle={styles.tabContainer}
       showsHorizontalScrollIndicator={false}
       style={styles.scrollView}>
-      {daysOfWeek.map(day => (
+      {newDays.map((day, index) => (
         <TouchableOpacity
           key={day}
           style={[
             styles.tabButton,
             selectedDay === day && styles.selectedTabButton,
-            activeDay === day && styles.activeTabButton,
+            activeDay === day && selectedDay !== day && styles.activeTabButton,
+            day == 'Sunday' && {borderColor: '#FF0000', borderWidth: 1},
           ]}
           onPress={() => setSelectedDay(day)}>
           <Text
@@ -92,7 +102,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
               styles.tabButtonText,
               selectedDay === day && styles.selectedTabButtonText,
             ]}>
-            {day}
+            {index === 0 ? 'Today' : day}
           </Text>
         </TouchableOpacity>
       ))}
@@ -116,12 +126,17 @@ const TimeTableScreen: React.FC<TimeProps> = ({
     const diff = dayIndex - today.getDay();
     return new Date(today.setDate(today.getDate() + diff));
   };
+  const formatTime = (date: string) => {
+    // HH:MM-HH:MM ... break by '-'
+    const [start, end] = date.split('-');
+    const startUTM = convertToUTM(start);
+    const endUTM = convertToUTM(end);
+    return `${startUTM} - ${endUTM}`;
+  };
 
   const [selectedDay, setSelectedDay] = useState(formatDate(new Date()));
   const [activeDay, setActiveDay] = useState(formatDate(new Date()));
-  const handleEdit = (id: number) => {
-    navigation.navigate('Edit', {card_register: activeRegister, card_id: id});
-  };
+
   useEffect(() => {
     const selectedDayCards: SelectedDayCard[] = [];
     const key = daysKeyMap[selectedDay as DayOfWeek];
@@ -151,12 +166,17 @@ const TimeTableScreen: React.FC<TimeProps> = ({
       });
     setDisplayCards(selectedDayCards);
   }, [activeRegister, selectedDay]);
-
+  const handleViewDetails = (r: number, c: number) => {
+    navigation.navigate('CardDetails', {
+      card_register: r,
+      card_id: c,
+    });
+  };
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer2}>
         <Text style={styles.selectedDayText}>
-          {selectedDay === activeDay ? 'Today' : selectedDay}
+          {selectedDay}
           {', ' +
             getNextDate(selectedDay).getDate() +
             ' ' +
@@ -177,44 +197,34 @@ const TimeTableScreen: React.FC<TimeProps> = ({
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView2}
         contentContainerStyle={styles.contentContainer}>
+        <Text style={styles.eventTypeTxt}>Ongoing Events</Text>
         {displayCards.map((cardSlot, index) => {
           return (
-            <>
-              <Text key={index} style={styles.cardSlotTime}>
-                {cardSlot.time}
+            <View key={index} style={{width: '100%'}}>
+              <Text style={styles.cardSlotTime}>
+                {formatTime(cardSlot.time)}
               </Text>
-              {cardSlot.card.map((card, ind) => (
-                <Card
-                  key={ind}
-                  id={card.id}
-                  title={card.title}
-                  present={card.present}
-                  total={card.total}
-                  target_percentage={card.target_percentage}
-                  tagColor={card.tagColor}
-                  cardRegister={activeRegister}
-                  handleMenuOpen={handleMenuOpen}
-                  hasLimit={card.hasLimit}
-                  limitFreq={card.limit}
-                  limitType={card.limitType}
-                />
+              {cardSlot.card.map(card => (
+                <View key={++ind} style={styles.cardMarginCover}>
+                  <Card
+                    id={card.id}
+                    title={card.title}
+                    present={card.present}
+                    total={card.total}
+                    target_percentage={card.target_percentage}
+                    tagColor={card.tagColor}
+                    cardRegister={activeRegister}
+                    handleMenuOpen={handleMenuOpen}
+                    hasLimit={card.hasLimit}
+                    limitFreq={card.limit}
+                    limitType={card.limitType}
+                    handleViewDetails={handleViewDetails}
+                  />
+                </View>
               ))}
-            </>
+            </View>
           );
         })}
-        {/* {registers[activeRegister]?.cards?.map((card, index) => (
-          <Card
-            key={index}
-            id={card.id}
-            title={card.title}
-            present={card.present}
-            total={card.total}
-            target_percentage={card.target_percentage}
-            tagColor={card.tagColor}
-            activeRegister={activeRegister}
-            handleEdit={handleEdit}
-          />
-        ))} */}
       </ScrollView>
       <Spacer />
     </View>
@@ -255,7 +265,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginHorizontal: 5,
     borderRadius: 50,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#3D3D3D',
   },
   contentContainer: {
@@ -263,8 +273,18 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    gap: 20,
     paddingTop: 20,
+  },
+  eventTypeTxt: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  cardMarginCover: {
+    marginBottom: 20,
+    width: '100%',
+    alignItems: 'center',
   },
   selectedTabButton: {
     backgroundColor: '#ffffff',
@@ -272,7 +292,7 @@ const styles = StyleSheet.create({
   },
   activeTabButton: {
     borderColor: '#018CC8',
-    borderWidth: 2,
+    borderWidth: 1,
   },
 
   tabButtonText: {
@@ -294,6 +314,10 @@ const styles = StyleSheet.create({
   },
   cardSlotTime: {
     color: '#fff',
+    width: '90%',
+    margin: 'auto',
+    marginBottom: 10,
+    fontSize: 16,
     textAlign: 'left',
     alignItems: 'center',
     justifyContent: 'flex-start',

@@ -16,6 +16,7 @@ interface CardProps {
   hasLimit: boolean;
   limitFreq: number;
   limitType: string;
+  handleViewDetails: (r: number, c: number) => void;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -30,6 +31,7 @@ const Card: React.FC<CardProps> = ({
   limitFreq,
   limitType,
   handleMenuOpen,
+  handleViewDetails,
 }) => {
   const {markPresent, markAbsent} = useStore();
   const [percentage, setPercentage] = useState(0);
@@ -45,10 +47,10 @@ const Card: React.FC<CardProps> = ({
 
   useEffect(() => {
     setCardStatus(getStatus());
-  }, [cardPresents, cardTotals]);
+  }, [cardTotals]);
 
   const getStatus = () => {
-    if (percentage > target_percentage) {
+    if (percentage >= target_percentage) {
       let totalClasses = cardTotals + 1;
       let myPercentage = percentage;
       let canLeave = -1;
@@ -59,10 +61,8 @@ const Card: React.FC<CardProps> = ({
       }
 
       if (canLeave === 0) return 'cannot leave next class';
-      if (canLeave === 1) return 'can leave next class';
-      else return 'can leave next ' + canLeave + ' classes';
-    } else if (Math.round(percentage) == Math.round(target_percentage)) {
-      return 'on track';
+      if (canLeave === 1) return 'can leave 1 class';
+      else return 'can leave ' + canLeave + ' classes';
     } else {
       let totalClasses = cardTotals;
       let presentClasses = cardPresents;
@@ -74,8 +74,9 @@ const Card: React.FC<CardProps> = ({
         presentClasses++;
         totalClasses++;
       }
-      if (cannotMiss === 1) return 'attend next class';
-      else return 'attend next ' + cannotMiss + ' classes';
+      if (cannotMiss === 1 || cannotMiss === 0)
+        return 'cannot leave next class';
+      else return 'cannot leave next ' + cannotMiss + ' classes';
     }
   };
   const MarkPresent = () => {
@@ -147,6 +148,14 @@ const Card: React.FC<CardProps> = ({
           </View>
           <ConicGradient percentage={percentage + 1} />
         </View>
+        <TouchableOpacity
+          style={styles.threeDotBig}
+          onPress={() => handleMenuOpen(cardRegister, id)}>
+          <Image
+            source={require('../../assets/icons/three-dot.png')}
+            style={{width: 20, height: 20, objectFit: 'contain'}}
+          />
+        </TouchableOpacity>
         <View style={styles.actionButtons}>
           <TouchableOpacity onPress={MarkPresent}>
             <Text style={styles.actionButtonText}>
@@ -164,10 +173,10 @@ const Card: React.FC<CardProps> = ({
               />
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleMenuOpen(cardRegister, id)}>
+          <TouchableOpacity onPress={() => handleViewDetails(cardRegister, id)}>
             <Text style={styles.actionButtonText}>
               <Image
-                source={require('../../assets/icons/menu.png')}
+                source={require('../../assets/icons/eye.png')}
                 style={styles.logo}
               />
             </Text>

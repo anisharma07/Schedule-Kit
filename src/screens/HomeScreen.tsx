@@ -26,16 +26,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 }: any) => {
   const {registers, activeRegister, updatedAt, setRegisterCardSize} =
     useStore();
-  const [cardSize, setCardSize] = useState('normal');
   const [currentRegister, setCurrentRegister] = useState<CardInterface[]>([]);
   useEffect(() => {
     setCurrentRegister(registers[activeRegister]?.cards || []);
-    setCardSize(registers[activeRegister]?.card_size);
+    console.log(registers[activeRegister]?.card_size);
   }, [updatedAt, activeRegister]);
 
-  const toggleSort = () => {
-    if (cardSize == 'small') setRegisterCardSize(activeRegister, 'normal');
-    else setRegisterCardSize(activeRegister, 'small');
+  // const toggleSort = () => {
+  //   if (cardSize == 'small') setRegisterCardSize(activeRegister, 'normal');
+  //   else setRegisterCardSize(activeRegister, 'small');
+  // };
+  const handleViewDetails = (r: number, c: number) => {
+    navigation.navigate('CardDetails', {
+      card_register: r,
+      card_id: c,
+    });
   };
 
   return (
@@ -67,7 +72,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         <Card />
         <Card />
         <Card /> */}
-        {cardSize == 'normal' &&
+        {registers[activeRegister].card_size == 'normal' &&
           currentRegister.map((card, index) => (
             <Card
               key={card.id}
@@ -82,9 +87,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               hasLimit={card.hasLimit}
               limitFreq={card.limit}
               limitType={card.limitType}
+              handleViewDetails={handleViewDetails}
             />
           ))}
-        {cardSize == 'small' &&
+        {registers[activeRegister].card_size == 'small' &&
           currentRegister.map((card, index) => (
             <MiniCard
               key={card.id}

@@ -365,7 +365,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
         </View>
       </View>
       <View>
-        <Text style={styles.addCourseTxt}>Add New Course</Text>
+        <Text style={styles.addCourseTxt}>Edit {card.title}</Text>
       </View>
 
       <ScrollView style={styles.container}>
