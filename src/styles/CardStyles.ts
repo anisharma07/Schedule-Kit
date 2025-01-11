@@ -1,14 +1,16 @@
-import {StyleSheet} from 'react-native';
-
+import {StyleSheet, Dimensions} from 'react-native';
+const {width} = Dimensions.get('window');
 const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 10,
-    padding: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     position: 'relative',
     width: '92%',
+    margin: 'auto',
     maxWidth: 500,
   },
 
@@ -24,6 +26,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
   },
   miniHeader: {
     flexDirection: 'row',
@@ -43,7 +46,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: '900',
     color: '#fff',
   },
@@ -53,22 +56,29 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   ratioBox: {
-    marginTop: 14,
-
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
   attendanceText: {
-    fontSize: 21,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  attendanceCount: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  attendanceCountBox: {
+    position: 'relative',
+    minWidth: 80,
+    height: 24,
+  },
+  attendanceCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    position: 'absolute',
+    top: -6,
+    left: -8,
+    width: 200,
   },
   miniAttendanceCount: {
     fontSize: 24,
@@ -80,12 +90,19 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     color: '#fff',
+    maxWidth: width > 550 ? 500 - 150 : width * 0.92 - 150,
+  },
+  leftBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   rightBox: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: 15,
+    marginRight: 0,
   },
   circularContainer: {
     position: 'relative',
@@ -102,8 +119,8 @@ const styles = StyleSheet.create({
     height: 40,
   },
   circularProgress: {
-    width: 58,
-    height: 58,
+    width: 50,
+    height: 50,
     borderRadius: 50,
     position: 'absolute',
     zIndex: 100,
@@ -120,7 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   percentageText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -131,7 +148,10 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 15,
+  },
+  actionButtonCover: {
+    // backgroundColor: '#000',
+    paddingHorizontal: 5,
   },
   miniActionButtons: {
     flexDirection: 'row',
@@ -156,8 +176,14 @@ const styles = StyleSheet.create({
   },
   threeDotBig: {
     position: 'absolute',
-    top: -12,
-    right: -8,
+    top: -15,
+    right: -18,
+    width: 40,
+    height: 40,
+    // backgroundColor: '#000',
+    zIndex: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   miniLogo: {
     width: 24,

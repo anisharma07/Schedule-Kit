@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   FlatList,
   Dimensions,
   Image,
+  PanResponder,
 } from 'react-native';
 import {Markings} from '../types/cards';
+import GestureRecognizer from 'react-native-swipe-gestures';
 
 interface CalendarProps {
   selectedDate: Date;
@@ -105,11 +107,23 @@ const Calendar: React.FC<CalendarProps> = ({
     if (absents > presents) return 'red';
     if (presents === absents) return '#BE5200';
   };
+  // const [days, setDays] = useState(getDaysInMonth(currentMonth));
 
+  // useEffect(() => {
+  //   setDays(getDaysInMonth(currentMonth));
+  // }, [currentMonth]);
   const days = getDaysInMonth(currentMonth);
+  const config = {
+    velocityThreshold: 0.3,
+    directionalOffsetThreshold: 80,
+  };
 
   return (
-    <View style={styles.container}>
+    <GestureRecognizer
+      onSwipeLeft={() => handleMonthChange('next')}
+      onSwipeRight={() => handleMonthChange('prev')}
+      config={config}
+      style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => handleMonthChange('prev')}>
@@ -172,7 +186,7 @@ const Calendar: React.FC<CalendarProps> = ({
           </View>
         )}
       />
-    </View>
+    </GestureRecognizer>
   );
 };
 

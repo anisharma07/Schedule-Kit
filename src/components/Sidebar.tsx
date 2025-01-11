@@ -12,10 +12,6 @@ import {
 } from 'react-native';
 import useStore from '../store/store';
 
-type Props = {
-  closeSideBar: () => void;
-};
-
 type RegisterProps = {
   name: string;
   index: number;
@@ -34,7 +30,6 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
       Animated.timing(dropdownHeight, {
         toValue: 0,
         duration: 300,
-        easing: Easing.out(Easing.exp),
         useNativeDriver: false,
       }).start(() => {
         setIsDropdownOpen(false);
@@ -44,7 +39,6 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
       Animated.timing(dropdownHeight, {
         toValue: 255, // Adjust based on the number of items
         duration: 300,
-        easing: Easing.out(Easing.exp),
         useNativeDriver: false,
       }).start();
     }
@@ -221,7 +215,7 @@ const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
   );
 };
 
-const Sidebar: React.FC<Props> = ({closeSideBar}) => {
+const Sidebar: React.FC = () => {
   const {registers, activeRegister, addRegister, setActiveRegister} =
     useStore();
   const handleAddRegister = () => {
@@ -314,13 +308,6 @@ const Sidebar: React.FC<Props> = ({closeSideBar}) => {
           />
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.menuButton} onPress={closeSideBar}>
-        <Image
-          source={require('../assets/icons/sidebar-close.png')}
-          style={{width: 30, height: 30}}
-        />
-      </TouchableOpacity>
     </View>
   );
 };

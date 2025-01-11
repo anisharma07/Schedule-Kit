@@ -1,6 +1,8 @@
 import React from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {MaterialTopTabBarProps} from '@react-navigation/material-top-tabs';
+import {EdgeInsets} from 'react-native-safe-area-context';
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({
   state,

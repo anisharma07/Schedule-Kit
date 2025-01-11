@@ -32,6 +32,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     console.log(registers[activeRegister]?.card_size);
   }, [updatedAt, activeRegister]);
 
+  useEffect(() => {
+    currentRegister.forEach(card => {
+      console.log(card.id);
+    });
+  }, [currentRegister]);
+
   // const toggleSort = () => {
   //   if (cardSize == 'small') setRegisterCardSize(activeRegister, 'normal');
   //   else setRegisterCardSize(activeRegister, 'small');
@@ -88,6 +94,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               limitFreq={card.limit}
               limitType={card.limitType}
               handleViewDetails={handleViewDetails}
+              delay={150 * index}
             />
           ))}
         {registers[activeRegister].card_size == 'small' &&
@@ -143,7 +150,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    gap: 20,
+    gap: 15,
     paddingTop: 20,
   },
   container: {

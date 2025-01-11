@@ -21,7 +21,7 @@ const {width} = Dimensions.get('window');
 
 type TabParamList = {
   Home: undefined;
-  Ai: undefined;
+  // Ai: undefined;
   Time: undefined;
   Settings: undefined;
 };
@@ -34,7 +34,7 @@ const Tabs: React.FC = ({navigation}: any) => {
   const [registerId, setRegisterId] = useState(-1);
   const [isChange, setIsChange] = useState(false);
 
-  const sidebarTranslate = useRef(new Animated.Value(-width * 0.8)).current;
+  const sidebarTranslate = useRef(new Animated.Value(-width * 0.75)).current;
 
   const CloseCardMenu = () => {
     setRegisterId(-1);
@@ -47,21 +47,33 @@ const Tabs: React.FC = ({navigation}: any) => {
     setIsMenuOpen(true);
   };
 
-  const toggleSidebar = () => {
-    Animated.timing(sidebarTranslate, {
-      toValue: isOpen ? -width * 0.8 : 0,
-      duration: 300, // Increase duration for smoother animation
-      easing: Easing.inOut(Easing.quad),
+  const openSidebar = () => {
+    Animated.spring(sidebarTranslate, {
+      toValue: 0,
+      friction: 8,
+      tension: 40,
+
       useNativeDriver: true,
     }).start(() => {
-      setIsOpen(!isOpen);
+      setIsOpen(true);
+    });
+  };
+
+  const closeSidebar = () => {
+    Animated.spring(sidebarTranslate, {
+      toValue: -width * 0.75,
+      friction: 8, // Adjust to control damping
+      tension: 40, // Adjust for spring stiffness
+      useNativeDriver: true,
+    }).start(() => {
+      setIsOpen(false);
     });
   };
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 20;
+        return Math.abs(gestureState.dx) > 0;
       },
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dx < 0) {
@@ -69,31 +81,17 @@ const Tabs: React.FC = ({navigation}: any) => {
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dx < -width * 0.4) {
-          Animated.timing(sidebarTranslate, {
-            toValue: -width * 0.8,
-            duration: 500,
-            easing: Easing.out(Easing.exp),
-            useNativeDriver: true,
-          }).start(() => {
-            setIsOpen(false);
-          });
+        if (gestureState.dx < -width * 0.5) {
+          closeSidebar();
         } else {
-          Animated.timing(sidebarTranslate, {
-            toValue: 0,
-            duration: 500,
-            easing: Easing.out(Easing.exp),
-            useNativeDriver: true,
-          }).start(() => {
-            setIsOpen(true);
-          });
+          openSidebar();
         }
       },
     }),
   ).current;
 
   const overlayOpacity = sidebarTranslate.interpolate({
-    inputRange: [-width * 0.8, 0],
+    inputRange: [-width * 0.75, 0],
     outputRange: [0, 0.7],
     extrapolate: 'clamp',
   });
@@ -111,12 +109,12 @@ const Tabs: React.FC = ({navigation}: any) => {
           {props => (
             <HomeScreen
               {...props}
-              toggleSidebar={toggleSidebar}
+              toggleSidebar={openSidebar}
               handleMenuOpen={handleMenuOpen}
             />
           )}
         </Tab.Screen>
-        <Tab.Screen name="Ai" component={AiScreen} />
+        {/* <Tab.Screen name="Ai" component={AiScreen} /> */}
         <Tab.Screen name="Time">
           {props => (
             <TimeTableScreen {...props} handleMenuOpen={handleMenuOpen} />
@@ -131,26 +129,16 @@ const Tabs: React.FC = ({navigation}: any) => {
         <TouchableOpacity
           activeOpacity={1}
           style={StyleSheet.absoluteFill}
-          onPress={toggleSidebar}
+          onPress={closeSidebar}
         />
       </Animated.View>
       <Animated.View
         style={[styles.sidebar, {transform: [{translateX: sidebarTranslate}]}]}
         {...panResponder.panHandlers}>
-        <Sidebar closeSideBar={toggleSidebar} />
+        <Sidebar />
       </Animated.View>
       {/* card menu  */}
-      {isMenuOpen && registerId != -1 && cardId != -1 && (
-        <View
-          style={styles.overlay}
-          pointerEvents={isMenuOpen ? 'auto' : 'none'}>
-          <TouchableOpacity
-            activeOpacity={1}
-            style={StyleSheet.absoluteFill}
-            onPress={CloseCardMenu}
-          />
-        </View>
-      )}
+
       <CardMenu
         isVisible={isMenuOpen}
         onClose={CloseCardMenu}
@@ -169,7 +157,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    width: width * 0.8,
+    width: width * 0.75,
     maxWidth: width * 1,
     backgroundColor: '#18181B',
     padding: 20,
@@ -183,7 +171,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-    zIndex: 100,
+    zIndex: 1000,
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },

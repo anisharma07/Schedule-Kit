@@ -119,10 +119,10 @@ const EditCard: React.FC = ({navigation, route}: any) => {
       hasLimit: value,
     }));
   };
-  const handleFreqUpdate = (value: string) => {
+  const handleFreqUpdate = (value: number) => {
     setCard(prev => ({
       ...prev,
-      limit: parseInt(value),
+      limit: value,
     }));
   };
   const handleLimitType = (value: boolean) => {
@@ -199,10 +199,10 @@ const EditCard: React.FC = ({navigation, route}: any) => {
     );
     const isOverlapping = card.days[currDayTime.day].some(
       dayTime =>
-        (newStartTime >= convertToStartSeconds(dayTime.start) &&
-          newStartTime <= convertToStartSeconds(dayTime.end)) ||
-        (newEndTime >= convertToStartSeconds(dayTime.start) &&
-          newEndTime <= convertToStartSeconds(dayTime.end)),
+        (newStartTime > convertToStartSeconds(dayTime.start) &&
+          newStartTime < convertToStartSeconds(dayTime.end)) ||
+        (newEndTime > convertToStartSeconds(dayTime.start) &&
+          newEndTime < convertToStartSeconds(dayTime.end)),
     );
     if (isOverlapping) {
       Alert.alert('Error', 'Time Slot Overlaps with existing slot!');
@@ -540,7 +540,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
                   style={styles.input3}
                   keyboardType="numeric"
                   value={card.limit.toString()}
-                  onChangeText={text => handleFreqUpdate(text)}
+                  onChangeText={text => handleFreqUpdate(parseInt(text) || 0)}
                 />
               </View>
 

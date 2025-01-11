@@ -109,10 +109,12 @@ const AddCard: React.FC = ({navigation, route}: any) => {
       hasLimit: value,
     }));
   };
-  const handleFreqUpdate = (value: string) => {
+  const handleFreqUpdate = (value: number) => {
+    console.log(value);
+
     setCard(prev => ({
       ...prev,
-      limit: parseInt(value),
+      limit: Math.min(500, value),
     }));
   };
   const handleLimitType = (value: boolean) => {
@@ -199,10 +201,10 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     );
     const isOverlapping = card.days[currDayTime.day].some(
       dayTime =>
-        (newStartTime >= convertToStartSeconds(dayTime.start) &&
-          newStartTime <= convertToStartSeconds(dayTime.end)) ||
-        (newEndTime >= convertToStartSeconds(dayTime.start) &&
-          newEndTime <= convertToStartSeconds(dayTime.end)),
+        (newStartTime > convertToStartSeconds(dayTime.start) &&
+          newStartTime < convertToStartSeconds(dayTime.end)) ||
+        (newEndTime > convertToStartSeconds(dayTime.start) &&
+          newEndTime < convertToStartSeconds(dayTime.end)),
     );
     if (isOverlapping) {
       Alert.alert('Error', 'Time Slot Overlaps with existing slot!');
@@ -367,7 +369,10 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               keyboardType="numeric"
               value={card.present.toString()}
               onChangeText={value =>
-                handleInputChange('present', parseInt(value) || 0)
+                handleInputChange(
+                  'present',
+                  Math.min(parseInt(value), 1000) || 0,
+                )
               }
             />
           </View>
@@ -381,7 +386,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               keyboardType="numeric"
               value={card.total.toString()}
               onChangeText={value =>
-                handleInputChange('total', parseInt(value) || 0)
+                handleInputChange('total', Math.min(parseInt(value), 1000) || 0)
               }
             />
           </View>
@@ -395,7 +400,10 @@ const AddCard: React.FC = ({navigation, route}: any) => {
           keyboardType="numeric"
           value={card.target_percentage.toString()}
           onChangeText={value =>
-            handleInputChange('target_percentage', parseInt(value) || 0)
+            handleInputChange(
+              'target_percentage',
+              Math.min(parseInt(value), 100) || 0,
+            )
           }
         />
 
@@ -515,7 +523,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
                   style={styles.input3}
                   keyboardType="numeric"
                   value={card.limit.toString()}
-                  onChangeText={text => handleFreqUpdate(text)}
+                  onChangeText={text => handleFreqUpdate(parseInt(text) || 0)}
                 />
               </View>
 

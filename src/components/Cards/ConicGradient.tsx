@@ -41,8 +41,8 @@ const ConicGradient = ({percentage}: {percentage: number}) => {
 
 const styles = StyleSheet.create({
   gradient: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     position: 'absolute',
   },
 });

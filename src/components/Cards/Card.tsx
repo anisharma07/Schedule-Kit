@@ -1,8 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, Image} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {View, Text, TouchableOpacity, Image, ToastAndroid} from 'react-native';
 import styles from '../../styles/CardStyles';
 import ConicGradient from './ConicGradient';
 import useStore from '../../store/store';
+
+import * as Animatable from 'react-native-animatable';
+import Toast from 'react-native-toast-message';
 
 interface CardProps {
   id: number;
@@ -17,6 +20,7 @@ interface CardProps {
   limitFreq: number;
   limitType: string;
   handleViewDetails: (r: number, c: number) => void;
+  delay: number;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -32,6 +36,7 @@ const Card: React.FC<CardProps> = ({
   limitType,
   handleMenuOpen,
   handleViewDetails,
+  delay,
 }) => {
   const {markPresent, markAbsent} = useStore();
   const [percentage, setPercentage] = useState(0);
@@ -60,8 +65,8 @@ const Card: React.FC<CardProps> = ({
         totalClasses++;
       }
 
-      if (canLeave === 0) return 'cannot leave next class';
-      if (canLeave === 1) return 'can leave 1 class';
+      if (canLeave === 0) return 'on track, cannot leave next class';
+      if (canLeave === 1) return 'on track, can leave 1 class';
       else return 'can leave ' + canLeave + ' classes';
     } else {
       let totalClasses = cardTotals;
@@ -83,10 +88,18 @@ const Card: React.FC<CardProps> = ({
     setCardPresents(prev => prev + 1);
     setCardTotals(prev => prev + 1);
     markPresent(cardRegister, id);
+    ToastAndroid.show(
+      title.length > 14 ? title.substring(0, 15) + '..' : title + ': Present++',
+      ToastAndroid.SHORT,
+    );
   };
   const MarkAbsent = () => {
     setCardTotals(prev => prev + 1);
     markAbsent(cardRegister, id);
+    ToastAndroid.show(
+      title.length > 14 ? title.substring(0, 15) + '..' : title + ': Absent++',
+      ToastAndroid.SHORT,
+    );
   };
   useEffect(() => {
     const updatePercentage = () => {
@@ -111,79 +124,92 @@ const Card: React.FC<CardProps> = ({
   }, [percentage]);
 
   return (
-    <View style={[styles.cardContainer, {backgroundColor: cardColor}]}>
-      <View>
-        <View style={styles.header}>
-          <View style={[styles.indicator, {backgroundColor: tagColor}]}></View>
-          <Text style={styles.headerTitle}>
-            {title.length > 15 ? title.substring(0, 15) + '..' : title}
-          </Text>
-        </View>
-        <View>
-          <View style={styles.ratioBox}>
-            <Text style={styles.attendanceText}>Attended</Text>
-            <Text style={styles.attendanceCount}>
-              {cardPresents}/{cardTotals}
+    <Animatable.View
+      animation="zoomIn"
+      delay={delay + 100}
+      duration={500}
+      style={{
+        width: '100%',
+      }}>
+      <View style={[styles.cardContainer, {backgroundColor: cardColor}]}>
+        <View style={styles.leftBox}>
+          <View style={styles.header}>
+            <View
+              style={[styles.indicator, {backgroundColor: tagColor}]}></View>
+            <Text style={styles.headerTitle}>
+              {title.length > 14 ? title.substring(0, 15) + '..' : title}
             </Text>
           </View>
-          {hasLimit && (
-            <Text style={styles.statusText}>
-              Count left:{' '}
-              {Math.max(
-                0,
-                limitFreq -
-                  (limitType === 'with-absent' ? cardTotals : cardPresents),
-              )}
-            </Text>
-          )}
-          {!hasLimit && (
-            <Text style={styles.statusText}>Status: {cardStatus}</Text>
-          )}
-        </View>
-      </View>
-      <View style={styles.rightBox}>
-        <View style={styles.circularContainer}>
-          <View style={[styles.circularProgress, {backgroundColor: cardColor}]}>
-            <Text style={styles.percentageText}>{percentage}%</Text>
+          <View>
+            <View style={styles.ratioBox}>
+              <Text style={styles.attendanceText}>Attended</Text>
+              <View style={styles.attendanceCountBox}>
+                <Text style={styles.attendanceCount}>
+                  {' '}
+                  {cardPresents}/{cardTotals}
+                </Text>
+              </View>
+            </View>
+            {hasLimit && (
+              <Text style={styles.statusText}>
+                Count left:{' '}
+                {Math.max(
+                  0,
+                  limitFreq -
+                    (limitType === 'with-absent' ? cardTotals : cardPresents),
+                )}
+              </Text>
+            )}
+            {!hasLimit && (
+              <Text style={styles.statusText}>Status: {cardStatus}</Text>
+            )}
           </View>
-          <ConicGradient percentage={percentage + 1} />
         </View>
-        <TouchableOpacity
-          style={styles.threeDotBig}
-          onPress={() => handleMenuOpen(cardRegister, id)}>
-          <Image
-            source={require('../../assets/icons/three-dot.png')}
-            style={{width: 20, height: 20, objectFit: 'contain'}}
-          />
-        </TouchableOpacity>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity onPress={MarkPresent}>
-            <Text style={styles.actionButtonText}>
+        <View style={styles.rightBox}>
+          <View style={styles.circularContainer}>
+            <View
+              style={[styles.circularProgress, {backgroundColor: cardColor}]}>
+              <Text style={styles.percentageText}>{percentage}%</Text>
+            </View>
+            <ConicGradient percentage={percentage + 1} />
+          </View>
+          <TouchableOpacity
+            style={styles.threeDotBig}
+            onPress={() => handleMenuOpen(cardRegister, id)}>
+            <Image
+              source={require('../../assets/icons/three-dot.png')}
+              style={{width: 20, height: 20, objectFit: 'contain'}}
+            />
+          </TouchableOpacity>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              onPress={MarkPresent}
+              style={styles.actionButtonCover}>
               <Image
                 source={require('../../assets/icons/mark-present.png')}
                 style={styles.logo}
               />
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={MarkAbsent}>
-            <Text style={styles.actionButtonText}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={MarkAbsent}
+              style={styles.actionButtonCover}>
               <Image
                 source={require('../../assets/icons/mark-absent.png')}
                 style={styles.logo}
               />
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleViewDetails(cardRegister, id)}>
-            <Text style={styles.actionButtonText}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleViewDetails(cardRegister, id)}
+              style={styles.actionButtonCover}>
               <Image
                 source={require('../../assets/icons/eye.png')}
                 style={styles.logo}
               />
-            </Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </Animatable.View>
   );
 };
 

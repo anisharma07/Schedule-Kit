@@ -1,6 +1,8 @@
 export interface Slots {
   start: string;
   end: string;
+  // room string or null
+  roomName: string | null;
 }
 
 export interface Days {

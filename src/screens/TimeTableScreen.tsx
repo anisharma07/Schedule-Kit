@@ -7,12 +7,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from 'react-native';
 import useStore from '../store/store';
 import {CardInterface, SelectedDayCard, Days} from '../types/cards';
 import Card from '../components/Cards/Card';
 import Spacer from '../components/Spacer';
-import {convertToUTM} from '../utils/functions';
+import {convertToStartSeconds, convertToUTM} from '../utils/functions';
 interface TimeProps {
   handleMenuOpen: (r: number, c: number) => void;
 }
@@ -93,16 +94,17 @@ const TabButtons: React.FC<TabButtonProps> = ({
           style={[
             styles.tabButton,
             selectedDay === day && styles.selectedTabButton,
-            activeDay === day && selectedDay !== day && styles.activeTabButton,
-            day == 'Sunday' && {borderColor: '#FF0000', borderWidth: 1},
+            activeDay === day && styles.activeTabButton,
+            day == 'Sunday' && {borderColor: '#6C6C6C', borderWidth: 1},
           ]}
           onPress={() => setSelectedDay(day)}>
           <Text
             style={[
               styles.tabButtonText,
               selectedDay === day && styles.selectedTabButtonText,
+              day == 'Sunday' && {color: '#6C6C6C'},
             ]}>
-            {index === 0 ? 'Today' : day}
+            {day}
           </Text>
         </TouchableOpacity>
       ))}
@@ -121,10 +123,11 @@ const TimeTableScreen: React.FC<TimeProps> = ({
     return daysOfWeek[date.getDay()];
   };
   const getNextDate = (day: string) => {
-    const today = new Date();
+    const today = new Date(); // Get the current date
+    const newDate = new Date(today); // Create a new Date object to avoid modifying the original
     const dayIndex = daysOfWeek.indexOf(day);
-    const diff = dayIndex - today.getDay();
-    return new Date(today.setDate(today.getDate() + diff));
+    newDate.setDate(today.getDate() + ((dayIndex - today.getDay() + 7) % 7));
+    return newDate;
   };
   const formatTime = (date: string) => {
     // HH:MM-HH:MM ... break by '-'
@@ -136,11 +139,97 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 
   const [selectedDay, setSelectedDay] = useState(formatDate(new Date()));
   const [activeDay, setActiveDay] = useState(formatDate(new Date()));
+  const [completedClasses, setCompletedClasses] = useState<SelectedDayCard[]>(
+    [],
+  );
+  const [upcomingClasses, setUpcomingClasses] = useState<SelectedDayCard[]>([]);
+  const [ongoingClasses, setOngoingClasses] = useState<SelectedDayCard[]>([]);
 
   useEffect(() => {
     const selectedDayCards: SelectedDayCard[] = [];
     const key = daysKeyMap[selectedDay as DayOfWeek];
+    const currKey = daysKeyMap[activeDay as DayOfWeek];
     const timeSlots: Record<string, CardInterface[]> = {};
+    const setCurrentClasses = () => {
+      const today = new Date();
+      // current time in seconds
+      const currentTime = today.getHours() * 3600 + today.getMinutes() * 60;
+      const onGoingClasses: SelectedDayCard[] = [];
+      const upcomingClasses: SelectedDayCard[] = [];
+      const completedClasses: SelectedDayCard[] = [];
+      const onGoingTimeSlot: Record<string, CardInterface[]> = {};
+      const upcomingTimeSlot: Record<string, CardInterface[]> = {};
+      const completedTimeSlot: Record<string, CardInterface[]> = {};
+
+      registers[activeRegister]?.cards?.forEach(card => {
+        card?.days[currKey]?.forEach(dayTime => {
+          const timeSlot = `${dayTime.start}-${dayTime.end}`;
+          {
+            if (
+              currentTime >= convertToStartSeconds(dayTime.start) &&
+              currentTime <= convertToStartSeconds(dayTime.end)
+            ) {
+              if (!onGoingTimeSlot[timeSlot]) {
+                onGoingTimeSlot[timeSlot] = [];
+              }
+              onGoingTimeSlot[timeSlot].push(card);
+            } else if (currentTime < convertToStartSeconds(dayTime.start)) {
+              if (!upcomingTimeSlot[timeSlot]) {
+                upcomingTimeSlot[timeSlot] = [];
+              }
+              upcomingTimeSlot[timeSlot].push(card);
+            } else {
+              if (!completedTimeSlot[timeSlot]) {
+                completedTimeSlot[timeSlot] = [];
+              }
+              completedTimeSlot[timeSlot].push(card);
+            }
+          }
+        });
+      });
+
+      Object.keys(onGoingTimeSlot)
+        .sort((a, b) => {
+          const [aStart] = a.split('-');
+          const [bStart] = b.split('-');
+          return aStart.localeCompare(bStart);
+        })
+        .forEach(timeSlot => {
+          onGoingClasses.push({
+            time: timeSlot,
+            card: onGoingTimeSlot[timeSlot],
+          });
+        });
+
+      Object.keys(upcomingTimeSlot)
+        .sort((a, b) => {
+          const [aStart] = a.split('-');
+          const [bStart] = b.split('-');
+          return aStart.localeCompare(bStart);
+        })
+        .forEach(timeSlot => {
+          upcomingClasses.push({
+            time: timeSlot,
+            card: upcomingTimeSlot[timeSlot],
+          });
+        });
+
+      Object.keys(completedTimeSlot)
+        .sort((a, b) => {
+          const [aStart] = a.split('-');
+          const [bStart] = b.split('-');
+          return aStart.localeCompare(bStart);
+        })
+        .forEach(timeSlot => {
+          completedClasses.push({
+            time: timeSlot,
+            card: completedTimeSlot[timeSlot],
+          });
+        });
+      setOngoingClasses(onGoingClasses);
+      setUpcomingClasses(upcomingClasses);
+      setCompletedClasses(completedClasses);
+    };
 
     registers[activeRegister]?.cards?.forEach(card => {
       card?.days[key]?.forEach(dayTime => {
@@ -154,9 +243,9 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 
     Object.keys(timeSlots)
       .sort((a, b) => {
-        const [aStart] = a.split('-');
-        const [bStart] = b.split('-');
-        return aStart.localeCompare(bStart);
+        const startSecondsa = convertToStartSeconds(a.split('-')[0]);
+        const startSecondsb = convertToStartSeconds(b.split('-')[0]);
+        return startSecondsa - startSecondsb;
       })
       .forEach(timeSlot => {
         selectedDayCards.push({
@@ -165,7 +254,8 @@ const TimeTableScreen: React.FC<TimeProps> = ({
         });
       });
     setDisplayCards(selectedDayCards);
-  }, [activeRegister, selectedDay]);
+    setCurrentClasses();
+  }, [activeRegister, selectedDay, activeDay]);
   const handleViewDetails = (r: number, c: number) => {
     navigation.navigate('CardDetails', {
       card_register: r,
@@ -175,8 +265,16 @@ const TimeTableScreen: React.FC<TimeProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer2}>
+        <View style={styles.timeTableBox}>
+          <Image
+            source={require('../assets/icons/navigation/time-table.png')}
+            style={{width: 25, height: 25}}
+          />
+
+          <Text style={styles.timeTableText}>Time Table</Text>
+        </View>
         <Text style={styles.selectedDayText}>
-          {selectedDay}
+          {selectedDay == activeDay ? 'Today' : selectedDay.substring(0, 3)}
           {', ' +
             getNextDate(selectedDay).getDate() +
             ' ' +
@@ -190,41 +288,153 @@ const TimeTableScreen: React.FC<TimeProps> = ({
       />
       {displayCards.length == 0 && (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No Events to Display</Text>
+          <Text style={styles.emptyText}>
+            No Events {selectedDay == activeDay ? 'Today' : 'on this Day'}
+          </Text>
         </View>
       )}
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView2}
         contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.eventTypeTxt}>Ongoing Events</Text>
-        {displayCards.map((cardSlot, index) => {
-          return (
-            <View key={index} style={{width: '100%'}}>
-              <Text style={styles.cardSlotTime}>
-                {formatTime(cardSlot.time)}
-              </Text>
-              {cardSlot.card.map(card => (
-                <View key={++ind} style={styles.cardMarginCover}>
-                  <Card
-                    id={card.id}
-                    title={card.title}
-                    present={card.present}
-                    total={card.total}
-                    target_percentage={card.target_percentage}
-                    tagColor={card.tagColor}
-                    cardRegister={activeRegister}
-                    handleMenuOpen={handleMenuOpen}
-                    hasLimit={card.hasLimit}
-                    limitFreq={card.limit}
-                    limitType={card.limitType}
-                    handleViewDetails={handleViewDetails}
-                  />
-                </View>
-              ))}
-            </View>
-          );
-        })}
+        {selectedDay != activeDay &&
+          displayCards.length > 0 &&
+          selectedDay != activeDay && (
+            <Text style={styles.eventTypeTxt}>Upcoming Classes</Text>
+          )}
+
+        {selectedDay != activeDay ? (
+          displayCards.map((cardSlot, index) => {
+            return (
+              <View key={index} style={{width: '100%'}}>
+                <Text style={styles.cardSlotTime}>
+                  {formatTime(cardSlot.time)}
+                </Text>
+                {cardSlot.card.map(card => (
+                  <View key={card.id} style={styles.cardMarginCover}>
+                    <Card
+                      id={card.id}
+                      title={card.title}
+                      present={card.present}
+                      total={card.total}
+                      target_percentage={card.target_percentage}
+                      tagColor={card.tagColor}
+                      cardRegister={activeRegister}
+                      handleMenuOpen={handleMenuOpen}
+                      hasLimit={card.hasLimit}
+                      limitFreq={card.limit}
+                      limitType={card.limitType}
+                      handleViewDetails={handleViewDetails}
+                      delay={0}
+                    />
+                  </View>
+                ))}
+              </View>
+            );
+          })
+        ) : (
+          <View style={{width: '100%'}}>
+            {ongoingClasses.length > 0 && (
+              <View style={{width: '100%'}}>
+                <Text style={styles.eventTypeTxt}>Ongoing Classes</Text>
+                {ongoingClasses.map((cardSlot, index) => {
+                  return (
+                    <View key={index} style={{width: '100%'}}>
+                      <Text style={styles.cardSlotTime}>
+                        {formatTime(cardSlot.time)}
+                      </Text>
+                      {cardSlot.card.map(card => (
+                        <View key={card.id} style={styles.cardMarginCover}>
+                          <Card
+                            id={card.id}
+                            title={card.title}
+                            present={card.present}
+                            total={card.total}
+                            target_percentage={card.target_percentage}
+                            tagColor={card.tagColor}
+                            cardRegister={activeRegister}
+                            handleMenuOpen={handleMenuOpen}
+                            hasLimit={card.hasLimit}
+                            limitFreq={card.limit}
+                            limitType={card.limitType}
+                            handleViewDetails={handleViewDetails}
+                            delay={0}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+            {upcomingClasses.length > 0 && (
+              <View style={{width: '100%'}}>
+                <Text style={styles.eventTypeTxt}>Upcoming Classes</Text>
+                {upcomingClasses.map((cardSlot, index) => {
+                  return (
+                    <View key={index} style={{width: '100%'}}>
+                      <Text style={styles.cardSlotTime}>
+                        {formatTime(cardSlot.time)}
+                      </Text>
+                      {cardSlot.card.map(card => (
+                        <View key={card.id} style={styles.cardMarginCover}>
+                          <Card
+                            id={card.id}
+                            title={card.title}
+                            present={card.present}
+                            total={card.total}
+                            target_percentage={card.target_percentage}
+                            tagColor={card.tagColor}
+                            cardRegister={activeRegister}
+                            handleMenuOpen={handleMenuOpen}
+                            hasLimit={card.hasLimit}
+                            limitFreq={card.limit}
+                            limitType={card.limitType}
+                            handleViewDetails={handleViewDetails}
+                            delay={0}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+            {completedClasses.length > 0 && (
+              <View style={{width: '100%'}}>
+                <Text style={styles.eventTypeTxt}>Done For Today</Text>
+                {completedClasses.map((cardSlot, index) => {
+                  return (
+                    <View key={index} style={{width: '100%'}}>
+                      <Text style={styles.cardSlotTime}>
+                        {formatTime(cardSlot.time)}
+                      </Text>
+                      {cardSlot.card.map(card => (
+                        <View key={card.id} style={styles.cardMarginCover}>
+                          <Card
+                            id={card.id}
+                            title={card.title}
+                            present={card.present}
+                            total={card.total}
+                            target_percentage={card.target_percentage}
+                            tagColor={card.tagColor}
+                            cardRegister={activeRegister}
+                            handleMenuOpen={handleMenuOpen}
+                            hasLimit={card.hasLimit}
+                            limitFreq={card.limit}
+                            limitType={card.limitType}
+                            handleViewDetails={handleViewDetails}
+                            delay={0}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
       <Spacer />
     </View>
@@ -280,6 +490,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   cardMarginCover: {
     marginBottom: 20,
@@ -306,18 +517,32 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    alignContent: 'center',
+  },
+  timeTableBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   selectedDayText: {
+    color: '#A0A0A0',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  timeTableText: {
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
   },
   cardSlotTime: {
-    color: '#fff',
+    color: '#A0A0A0',
     width: '90%',
     margin: 'auto',
     marginBottom: 10,
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'left',
     alignItems: 'center',
     justifyContent: 'flex-start',

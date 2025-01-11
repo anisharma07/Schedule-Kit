@@ -8,6 +8,7 @@ import {
   Easing,
   Alert,
   Image,
+  Dimensions,
 } from 'react-native';
 import useStore from '../store/store';
 
@@ -19,7 +20,7 @@ interface CardMenuProps {
   navigation: any;
   makeChange: () => void;
 }
-
+const width = Dimensions.get('window').width;
 const CardMenu: React.FC<CardMenuProps> = ({
   isVisible,
   onClose,
@@ -41,16 +42,24 @@ const CardMenu: React.FC<CardMenuProps> = ({
       setCardName(registers[RegisterId].cards[CardId].title);
     }
   }, [RegisterId, CardId]);
-
+  const overlayOpacity = useRef(new Animated.Value(0)).current; // Initial opacity
   useEffect(() => {
-    Animated.timing(slideAnim, {
-      toValue: isVisible ? 0 : 300, // Slide up to 0 if visible, down to 342 if not
-      duration: 300, // Adjust duration as needed
-      easing: Easing.inOut(Easing.quad), // Smoother easing
-      useNativeDriver: true,
-    }).start();
+    if (isVisible) {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 7, // Lower friction for smoother animation
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 300, // Duration for fade-in effect
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
   }, [isVisible]);
-
   const handleEdit = () => {
     navigation.navigate('Edit', {
       card_register: RegisterId,
@@ -86,41 +95,68 @@ const CardMenu: React.FC<CardMenuProps> = ({
       },
     ]);
   };
+  const handleMenuClose = () => {
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 300,
+        friction: 7, // Lower friction for smoother animation
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 300, // Duration for fade-out effect
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      onClose();
+    });
+  };
 
   if (RegisterId == -1 || CardId == -1) return null;
   return (
-    <Animated.View
-      style={[styles.container, {transform: [{translateY: slideAnim}]}]}>
-      <TouchableOpacity style={styles.button} onPress={handleEdit}>
-        <Image
-          source={require('../assets/icons/card-menu/edit.png')}
-          style={{width: 20, height: 20}}
+    <>
+      <Animated.View
+        style={[styles.overlay, {opacity: overlayOpacity}]}
+        pointerEvents={isVisible ? 'auto' : 'none'}>
+        <TouchableOpacity
+          style={styles.overlayTouchable}
+          onPress={handleMenuClose}
         />
-        <Text style={styles.buttonText}>Edit Subject</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleViewDetails}>
-        <Image
-          source={require('../assets/icons/card-menu/report.png')}
-          style={{width: 20, height: 20, objectFit: 'contain'}}
-        />
-        <Text style={styles.buttonText}>View Details</Text>
-      </TouchableOpacity>
+      </Animated.View>
+      <Animated.View
+        style={[styles.container, {transform: [{translateY: slideAnim}]}]}>
+        <TouchableOpacity style={styles.button} onPress={handleEdit}>
+          <Image
+            source={require('../assets/icons/card-menu/edit.png')}
+            style={{width: 20, height: 20}}
+          />
+          <Text style={styles.buttonText}>Edit Subject</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleViewDetails}>
+          <Image
+            source={require('../assets/icons/card-menu/report.png')}
+            style={{width: 20, height: 20, objectFit: 'contain'}}
+          />
+          <Text style={styles.buttonText}>View Details</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleUndoChanges}>
-        <Image
-          source={require('../assets/icons/card-menu/undo.png')}
-          style={{width: 18, height: 18, objectFit: 'contain'}}
-        />
-        <Text style={styles.buttonText}>Undo Last Change</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleRemoveCard}>
-        <Image
-          source={require('../assets/icons/card-menu/delete.png')}
-          style={{width: 18, height: 18}}
-        />
-        <Text style={styles.buttonText}>Delete Subject</Text>
-      </TouchableOpacity>
-    </Animated.View>
+        <TouchableOpacity style={styles.button} onPress={handleUndoChanges}>
+          <Image
+            source={require('../assets/icons/card-menu/undo.png')}
+            style={{width: 18, height: 18, objectFit: 'contain'}}
+          />
+          <Text style={styles.buttonText}>Undo Last Change</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleRemoveCard}>
+          <Image
+            source={require('../assets/icons/card-menu/delete.png')}
+            style={{width: 18, height: 18}}
+          />
+          <Text style={styles.buttonText}>Delete Subject</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </>
   );
 };
 
@@ -165,6 +201,19 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontSize: 16,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 100,
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  overlayTouchable: {
+    flex: 1,
   },
 });
 

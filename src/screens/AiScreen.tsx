@@ -1,10 +1,12 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import SmoothDrawer from '../components/SmoothDrawer';
 
 const AiScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>AI Screen</Text>
+      <Text style={{color: '#fff'}}>AI Screen</Text>
+      <SmoothDrawer />
     </View>
   );
 };
