@@ -17,6 +17,7 @@ interface StoreState {
   activeRegister: number;
   updatedAt: Date | null;
   defaultTargetPercentage: number;
+  setRegisters: (regNo: number, cardsData: CardInterface[]) => void;
   updateDate: (date: Date) => void;
   changeCopyRegister: (registerId: number) => void;
   setActiveRegister: (registerId: number) => void;
@@ -62,6 +63,17 @@ export const useStore = create<StoreState>()(
         set(() => ({
           activeRegister: registerId,
         })),
+      setRegisters: (registerId: number, cardsData: CardInterface[]) =>
+        set(state => ({
+          registers: {
+            ...state.registers,
+            [registerId]: {
+              ...state.registers[registerId],
+              cards: cardsData,
+            },
+          },
+        })),
+
       updateDate: (date: Date) =>
         set(() => ({
           updatedAt: date,

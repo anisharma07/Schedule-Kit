@@ -17,6 +17,7 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 DerivedData
+.env
 *.hmap
 *.ipa
 *.xcuserstate
