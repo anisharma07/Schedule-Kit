@@ -247,8 +247,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cellButton: {
-    width: '65%',
-    height: '65%',
+    width: '75%',
+    height: '75%',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
