@@ -15,11 +15,83 @@ import {CardInterface} from '../types/cards';
 import Calendar from '../components/Calendar';
 import {convertToUTM, formatToHHMM} from '../utils/functions';
 import Calendar2 from '../components/Calendar2';
+import {TextInput} from 'react-native-gesture-handler';
 
 const ViewCardDetails: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
-  const {editCard, registers, removeMarking} = useStore();
+  const {
+    editCard,
+    registers,
+    removeMarking,
+    markAbsentWithDate,
+    markPresentWithDate,
+  } = useStore();
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [inputTime, setInputTime] = useState(getCurrentTime());
+  const handleTimeChange = (value: string) => {
+    setInputTime(value);
+  };
+  const isValidTime = (time: string) => {
+    // check format HH:MM and not alphabets
+    if (!/^\d{2}:\d{2}$/.test(time)) return false;
+
+    // check if hours and minutes are in valid range
+    const [hours, minutes] = time.split(':').map(Number);
+    if (hours < 0 || hours > 23) return false;
+    if (minutes < 0 || minutes > 59) return false;
+    return true;
+  };
+
+  const handleMarkAbsent = () => {
+    // check for inputTime
+    if (!isValidTime(inputTime)) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Invalid Time', ToastAndroid.SHORT);
+      }
+      return;
+    }
+    //create new date using time from inputTime and date from selectedDate
+    const newDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      parseInt(inputTime.split(':')[0]),
+      parseInt(inputTime.split(':')[1]),
+    );
+    markAbsentWithDate(newDate, card_id, card_register);
+
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Marked Absent', ToastAndroid.SHORT);
+    }
+  };
+
+  const handleMarkPresent = () => {
+    // check for inputTime
+    if (!isValidTime(inputTime)) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Invalid Time', ToastAndroid.SHORT);
+      }
+      return;
+    }
+    //create new date using time from inputTime and date from selectedDate
+    const newDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      parseInt(inputTime.split(':')[0]),
+      parseInt(inputTime.split(':')[1]),
+    );
+    markPresentWithDate(newDate, card_id, card_register);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Marked Present', ToastAndroid.SHORT);
+    }
+  };
 
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
   const handleRemoveMark = (
@@ -92,6 +164,39 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
         </TouchableOpacity>
       </View>
 
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 20,
+          paddingHorizontal: 10,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 8,
+            alignItems: 'center',
+          }}>
+          <Text style={{color: '#fff', fontSize: 18}}>Time:</Text>
+          <TextInput
+            style={styles.ampm}
+            value={inputTime}
+            onChangeText={value => handleTimeChange(value)}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.addTimeBtnPresent}
+          onPress={() => handleMarkPresent()}>
+          <Text style={{color: '#fff', textAlign: 'center'}}>Add Present</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addTimeBtn}
+          onPress={() => handleMarkAbsent()}>
+          <Text style={{color: '#fff', textAlign: 'center'}}>Add Absent</Text>
+        </TouchableOpacity>
+      </View>
       <Calendar
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
@@ -223,6 +328,31 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginBottom: 8,
     backgroundColor: '#750000',
+  },
+  ampm: {
+    backgroundColor: '#1F1F22',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#464646',
+  },
+  addTimeBtn: {
+    backgroundColor: '#CE0000',
+    borderRadius: 8,
+    padding: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addTimeBtnPresent: {
+    backgroundColor: '#00670E',
+    borderRadius: 8,
+    padding: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

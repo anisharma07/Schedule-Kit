@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {GOOGLE_WEB_CLIENT_ID} from '@env';
+// import {GOOGLE_WEB_CLIENT_ID} from '@env';
 import firestore from '@react-native-firebase/firestore';
 import useStore from '../store/store';
 import {TextInput} from 'react-native-gesture-handler';
@@ -18,7 +18,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 // ...existing code...
 
 GoogleSignin.configure({
-  webClientId: GOOGLE_WEB_CLIENT_ID,
+  webClientId:
+    '869900680343-6plovr08jc85d8p0fp9fgv48iiekntce.apps.googleusercontent.com',
 });
 
 const SettingsScreen: React.FC = () => {
@@ -51,12 +52,11 @@ const SettingsScreen: React.FC = () => {
       const userCredential = await auth().signInWithCredential(
         googleCredential,
       );
-      console.log(userCredential.user);
       setGoogleUser(userCredential.user);
       Alert.alert('Signed in with Google!');
       sendUserDataToFirestore(userCredential.user);
     } catch (error) {
-      console.log('Google Sign-In Error: ' + error);
+      Alert.alert('Google Sign-In Error: ' + error);
     }
   };
 

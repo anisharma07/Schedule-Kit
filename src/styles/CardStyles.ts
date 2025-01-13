@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '92%',
     margin: 'auto',
-    maxWidth: 500,
+    // maxWidth: 500,
   },
 
   closeButton: {

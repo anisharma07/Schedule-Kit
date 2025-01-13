@@ -9,22 +9,32 @@ import {
   Animated,
   Easing,
   Alert,
+  TextInput,
 } from 'react-native';
 import useStore from '../store/store';
 
 type RegisterProps = {
   name: string;
   index: number;
+  isActive: boolean;
 };
 
-const Register: React.FC<RegisterProps> = ({name, index}) => {
-  const {setActiveRegister} = useStore();
+const Register: React.FC<RegisterProps> = ({name, index, isActive}) => {
+  const {
+    setActiveRegister,
+    removeRegister,
+    renameRegister,
+    clearCardsAttendance,
+  } = useStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const handleActiveRegister = () => {
+    if (isEditable) return;
     setActiveRegister(index);
   };
-
+  const [displayName, setDisplayName] = useState(name);
+  const [isEditable, setIsEditable] = useState(false);
   const toggleDropdown = () => {
     if (isDropdownOpen) {
       Animated.timing(dropdownHeight, {
@@ -37,45 +47,111 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
     } else {
       setIsDropdownOpen(true);
       Animated.timing(dropdownHeight, {
-        toValue: 255, // Adjust based on the number of items
+        toValue: 125, // Adjust based on the number of items
         duration: 300,
         useNativeDriver: false,
       }).start();
     }
   };
+  const handleRegisterDelete = () => {
+    Alert.alert(
+      'Delete Register',
+      'Are you sure you want to delete this register?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            removeRegister(index);
+            toggleDropdown();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  const handleInputChange = (text: string) => {
+    setDisplayName(text);
+  };
+  const handleRename = () => {
+    setIsEditable(true);
+    toggleDropdown();
+  };
+  const handleMenuOrRename = () => {
+    if (isEditable) {
+      if (displayName.length == 0) {
+        Alert.alert('Invalid Name', 'Name cannot be empty', [
+          {
+            text: 'OK',
+          },
+        ]);
+        return;
+      }
+      renameRegister(index, displayName);
+      setIsEditable(false);
+    } else {
+      toggleDropdown();
+    }
+  };
+  const handleClearCards = () => {
+    Alert.alert(
+      'Clear Register',
+      'Are you sure you want to clear this register?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            clearCardsAttendance(index);
+            toggleDropdown();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
   return (
     <View style={styles.registerBox}>
-      <TouchableOpacity style={styles.menu} onPress={toggleDropdown}>
-        <Image
-          source={require('../assets/icons/three-dot.png')}
-          style={{
-            width: 20,
-            height: 20,
-            tintColor: '#fff',
-            objectFit: 'contain',
-          }}
-        />
+      <Text style={styles.regId}>{index + 1}</Text>
+      <TouchableOpacity style={styles.menu} onPress={handleMenuOrRename}>
+        {isEditable ? (
+          <Image
+            source={require('../assets/icons/mark-present.png')}
+            style={{
+              width: 20,
+              height: 20,
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
+          <Image
+            source={require('../assets/icons/three-dot.png')}
+            style={{
+              width: 20,
+              height: 20,
+              tintColor: '#fff',
+              objectFit: 'contain',
+            }}
+          />
+        )}
       </TouchableOpacity>
-      {index == 0 && (
-        <Image
-          source={require('../assets/images/star.png')}
-          style={{
-            position: 'absolute',
-            top: 18,
-            left: -15,
-            width: 10,
-            height: 10,
-            objectFit: 'contain',
-          }}
-        />
-      )}
       <TouchableOpacity
-        style={styles.registerButton}
+        style={isActive ? styles.activeRegisterButton : styles.registerButton}
         onPress={handleActiveRegister}>
         <Text style={styles.emojiText}>📝</Text>
-        <Text style={styles.menuText}>
-          {name.length > 16 ? name.substring(0, 16) + '...' : name}
-        </Text>
+        <TextInput
+          value={displayName}
+          editable={isEditable}
+          onChangeText={text => handleInputChange(text)}
+          style={styles.menuText}
+        />
       </TouchableOpacity>
       {isDropdownOpen && (
         <View
@@ -92,120 +168,18 @@ const Register: React.FC<RegisterProps> = ({name, index}) => {
               onPress={toggleDropdown}>
               <Text style={styles.textX}>x</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.firstBtn}>
+            <TouchableOpacity style={styles.firstBtn} onPress={handleRename}>
               <Text style={styles.dropdownItemText}>rename</Text>
               <View style={styles.fixLine}></View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>copy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>paste</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>share</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>clear</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>delete</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-      )}
-    </View>
-  );
-};
-const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownHeight = useRef(new Animated.Value(0)).current;
-
-  const toggleDropdown = () => {
-    if (isDropdownOpen) {
-      Animated.timing(dropdownHeight, {
-        toValue: 0,
-        duration: 300,
-        easing: Easing.out(Easing.exp),
-        useNativeDriver: false,
-      }).start(() => {
-        setIsDropdownOpen(false);
-      });
-    } else {
-      setIsDropdownOpen(true);
-      Animated.timing(dropdownHeight, {
-        toValue: 255, // Adjust based on the number of items
-        duration: 300,
-        easing: Easing.out(Easing.exp),
-        useNativeDriver: false,
-      }).start();
-    }
-  };
-  return (
-    <View style={styles.registerBox}>
-      <TouchableOpacity style={styles.menu} onPress={toggleDropdown}>
-        <Image
-          source={require('../assets/icons/three-dot.png')}
-          style={{
-            width: 20,
-            height: 20,
-            tintColor: '#fff',
-            objectFit: 'contain',
-          }}
-        />
-      </TouchableOpacity>
-      {index == 0 && (
-        <Image
-          source={require('../assets/images/star.png')}
-          style={{
-            position: 'absolute',
-            top: 18,
-            left: -15,
-            width: 10,
-            height: 10,
-            objectFit: 'contain',
-          }}
-        />
-      )}
-      <TouchableOpacity style={styles.activeRegisterButton}>
-        <Text style={styles.emojiText}>📝</Text>
-        <Text style={styles.menuText}>
-          {name.length > 16 ? name.substring(0, 16) + '...' : name}
-        </Text>
-      </TouchableOpacity>
-
-      {isDropdownOpen && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 5,
-            zIndex: 10000000,
-            width: 150,
-          }}>
-          <Animated.View style={[styles.dropdown, {height: dropdownHeight}]}>
             <TouchableOpacity
-              style={styles.dropdownClose}
-              onPress={toggleDropdown}>
-              <Text style={styles.textX}>x</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.firstBtn}>
-              <Text style={styles.dropdownItemText}>rename</Text>
-              <View style={styles.fixLine}></View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>copy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>paste</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownItemText}>share</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
+              style={styles.dropdownItem}
+              onPress={handleClearCards}>
               <Text style={styles.dropdownItemText}>clear</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.dropdownItem}>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={handleRegisterDelete}>
               <Text style={styles.dropdownItemText}>delete</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -214,15 +188,13 @@ const ActiveRegister: React.FC<RegisterProps> = ({name, index}) => {
     </View>
   );
 };
-
 const Sidebar: React.FC = () => {
-  const {registers, activeRegister, addRegister, setActiveRegister} =
-    useStore();
+  const {registers, activeRegister, addRegister} = useStore();
   const handleAddRegister = () => {
-    if (Object.keys(registers).length >= 25) {
+    if (Object.keys(registers).length >= 10) {
       Alert.alert(
         'Limit Reached',
-        'You have reached the limit of 25 registers. Please delete some registers to add new ones.',
+        'You have reached the limit of 10 registers. Please delete some registers to add new ones.',
         [
           {
             text: 'OK',
@@ -265,23 +237,14 @@ const Sidebar: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}>
         {Object.keys(registers).map((key: any, index: number) => {
-          if (key == activeRegister) {
-            return (
-              <ActiveRegister
-                name={registers[key].name}
-                index={index}
-                key={index}
-              />
-            );
-          } else {
-            return (
-              <Register
-                name={registers[key].name}
-                index={parseInt(key)}
-                key={index}
-              />
-            );
-          }
+          return (
+            <Register
+              name={registers[key].name}
+              isActive={key == activeRegister ? true : false}
+              index={parseInt(key)}
+              key={index}
+            />
+          );
         })}
 
         {/* <ActiveRegister name={'Active Register'} index={0} />
@@ -294,17 +257,7 @@ const Sidebar: React.FC = () => {
           <Text style={styles.mainText}>Create New</Text>
           <Image
             source={require('../assets/icons/add-register.png')}
-            style={{width: 30, height: 30}}
-          />
-          <Image
-            source={require('../assets/icons/create-bg.png')}
-            style={{
-              width: 200,
-              height: 60,
-              objectFit: 'contain',
-              position: 'absolute',
-              zIndex: -1,
-            }}
+            style={{width: 20, height: 20}}
           />
         </TouchableOpacity>
       </View>
@@ -331,6 +284,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 100,
     gap: 20,
   },
 
@@ -369,30 +323,33 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     minWidth: '80%',
-
     marginRight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2B2B2B',
-    padding: 10,
-    paddingLeft: 15,
+    paddingLeft: 25,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#464646',
   },
   activeRegisterButton: {
     minWidth: '80%',
-
     marginRight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#128700',
-    padding: 10,
     borderRadius: 10,
-    paddingLeft: 15,
-
+    paddingLeft: 25,
     borderWidth: 1,
     borderColor: '#045600',
+  },
+  regId: {
+    position: 'absolute',
+    left: 7,
+    top: 15,
+    fontSize: 12,
+    color: '#fff',
+    zIndex: 100000000,
   },
   createButton: {
     width: '100%',
@@ -407,10 +364,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#1e1e1e',
+    borderWidth: 1,
+    borderColor: '#828282',
+    borderRadius: 8,
     gap: 10,
-    padding: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 7,
+    paddingLeft: 14,
+    paddingRight: 14,
   },
   dropdown: {
     width: '100%',

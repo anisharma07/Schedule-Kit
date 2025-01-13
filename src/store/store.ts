@@ -25,8 +25,11 @@ interface StoreState {
   renameRegister: (registerId: number, registerName: string) => void;
   removeRegister: (registerId: number) => void;
   addCard: (registerId: number, cardData: CardInterface) => void;
+  clearCardsAttendance: (registerId: number) => void;
   markPresent: (registerId: number, cardId: number) => void;
   markAbsent: (registerId: number, id: number) => void;
+  markAbsentWithDate: (date: Date, cardId: number, registerId: number) => void;
+  markPresentWithDate: (date: Date, cardId: number, registerId: number) => void;
   removeMarking: (
     registerId: number,
     cardId: number,
@@ -44,7 +47,7 @@ export const useStore = create<StoreState>()(
     set => ({
       registers: {
         0: {
-          name: 'Register 1',
+          name: 'Semester VI',
           cards: [],
           card_size: 'normal',
         },
@@ -107,11 +110,7 @@ export const useStore = create<StoreState>()(
             ...state.registers,
             [registerId]: {
               ...state.registers[registerId],
-              cards: state.registers[registerId].cards.map(card => ({
-                ...card,
-                present: 0,
-                total: 0,
-              })),
+              cards: [],
             },
           },
         })),
@@ -119,13 +118,24 @@ export const useStore = create<StoreState>()(
       removeRegister: (registerId: number) =>
         set(state => {
           const registers = {...state.registers};
-          const newActiveRegister =
-            state.activeRegister === registerId ? 0 : state.activeRegister;
-          delete registers[registerId];
-          return {
-            registers,
-            activeRegister: newActiveRegister,
-          };
+          if (registerId in registers) {
+            const keys = Object.keys(registers)
+              .map(Number)
+              .sort((a, b) => a - b);
+            if (registerId < keys.length - 1) {
+              for (let i = registerId; i < keys.length - 1; i++) {
+                registers[i] = registers[i + 1];
+              }
+            }
+            delete registers[keys.length - 1];
+            const newActiveRegister =
+              state.activeRegister === registerId ? 0 : state.activeRegister;
+            return {
+              registers,
+              activeRegister: newActiveRegister,
+            };
+          }
+          return state;
         }),
 
       addCard: (registerId: number, cardData: CardInterface) =>
@@ -191,6 +201,83 @@ export const useStore = create<StoreState>()(
             },
           },
         })),
+      markAbsentWithDate: (date: Date, cardId: number, registerId: number) =>
+        set(state => {
+          const register = state.registers[registerId];
+          const card = register.cards.find(card => card.id === cardId);
+
+          if (!card) {
+            return state;
+          }
+
+          const newMarkedAt = [
+            ...card.markedAt,
+            {
+              id: card.markedAt.length + 1,
+              date: date.toString(),
+              isPresent: false,
+            },
+          ];
+
+          return {
+            ...state,
+            registers: {
+              ...state.registers,
+              [registerId]: {
+                ...state.registers[registerId],
+                cards: state.registers[registerId].cards.map(card =>
+                  card.id === cardId
+                    ? {
+                        ...card,
+                        total: card.total + 1,
+                        markedAt: newMarkedAt,
+                      }
+                    : card,
+                ),
+              },
+            },
+            updatedAt: new Date(),
+          };
+        }),
+      markPresentWithDate: (date: Date, cardId: number, registerId: number) =>
+        set(state => {
+          const register = state.registers[registerId];
+          const card = register.cards.find(card => card.id === cardId);
+
+          if (!card) {
+            return state;
+          }
+
+          const newMarkedAt = [
+            ...card.markedAt,
+            {
+              id: card.markedAt.length + 1,
+              date: date.toString(),
+              isPresent: true,
+            },
+          ];
+
+          return {
+            ...state,
+            registers: {
+              ...state.registers,
+              [registerId]: {
+                ...state.registers[registerId],
+                cards: state.registers[registerId].cards.map(card =>
+                  card.id === cardId
+                    ? {
+                        ...card,
+                        present: card.present + 1,
+                        total: card.total + 1,
+                        markedAt: newMarkedAt,
+                      }
+                    : card,
+                ),
+              },
+            },
+            updatedAt: new Date(),
+          };
+        }),
       removeMarking: (registerId: number, cardId: number, markingId: number) =>
         set(state => {
           const register = state.registers[registerId];

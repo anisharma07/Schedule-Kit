@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "869900680343-lf96eviemuc5kfa8q4o48npb1bjilh8m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myreactnativeapp",
+            "certificate_hash": "fd05318ae1039222e5c0323513d4a74ce4107fd7"
+          }
+        },
+        {
           "client_id": "869900680343-6plovr08jc85d8p0fp9fgv48iiekntce.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -190,9 +190,9 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 
       Object.keys(onGoingTimeSlot)
         .sort((a, b) => {
-          const [aStart] = a.split('-');
-          const [bStart] = b.split('-');
-          return aStart.localeCompare(bStart);
+          const startSecondsa = convertToStartSeconds(a.split('-')[0]);
+          const startSecondsb = convertToStartSeconds(b.split('-')[0]);
+          return startSecondsa - startSecondsb;
         })
         .forEach(timeSlot => {
           onGoingClasses.push({
@@ -203,9 +203,9 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 
       Object.keys(upcomingTimeSlot)
         .sort((a, b) => {
-          const [aStart] = a.split('-');
-          const [bStart] = b.split('-');
-          return aStart.localeCompare(bStart);
+          const startSecondsa = convertToStartSeconds(a.split('-')[0]);
+          const startSecondsb = convertToStartSeconds(b.split('-')[0]);
+          return startSecondsa - startSecondsb;
         })
         .forEach(timeSlot => {
           upcomingClasses.push({
@@ -216,9 +216,9 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 
       Object.keys(completedTimeSlot)
         .sort((a, b) => {
-          const [aStart] = a.split('-');
-          const [bStart] = b.split('-');
-          return aStart.localeCompare(bStart);
+          const startSecondsa = convertToStartSeconds(a.split('-')[0]);
+          const startSecondsb = convertToStartSeconds(b.split('-')[0]);
+          return startSecondsa - startSecondsb;
         })
         .forEach(timeSlot => {
           completedClasses.push({

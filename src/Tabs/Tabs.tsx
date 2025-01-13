@@ -34,7 +34,7 @@ const Tabs: React.FC = ({navigation}: any) => {
   const [registerId, setRegisterId] = useState(-1);
   const [isChange, setIsChange] = useState(false);
 
-  const sidebarTranslate = useRef(new Animated.Value(-width * 0.75)).current;
+  const sidebarTranslate = useRef(new Animated.Value(-width * 0.76)).current;
 
   const CloseCardMenu = () => {
     setRegisterId(-1);
@@ -61,7 +61,7 @@ const Tabs: React.FC = ({navigation}: any) => {
 
   const closeSidebar = () => {
     Animated.spring(sidebarTranslate, {
-      toValue: -width * 0.75,
+      toValue: -width * 0.76,
       friction: 8, // Adjust to control damping
       tension: 40, // Adjust for spring stiffness
       useNativeDriver: true,
@@ -73,7 +73,7 @@ const Tabs: React.FC = ({navigation}: any) => {
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 0;
+        return Math.abs(gestureState.dx) > 20;
       },
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dx < 0) {
@@ -81,7 +81,7 @@ const Tabs: React.FC = ({navigation}: any) => {
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dx < -width * 0.5) {
+        if (gestureState.dx < -width * 0.38) {
           closeSidebar();
         } else {
           openSidebar();
@@ -91,7 +91,7 @@ const Tabs: React.FC = ({navigation}: any) => {
   ).current;
 
   const overlayOpacity = sidebarTranslate.interpolate({
-    inputRange: [-width * 0.75, 0],
+    inputRange: [-width * 0.76, 0],
     outputRange: [0, 0.7],
     extrapolate: 'clamp',
   });
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    width: width * 0.75,
+    width: width * 0.76,
     maxWidth: width * 1,
     backgroundColor: '#18181B',
     padding: 20,
