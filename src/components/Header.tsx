@@ -57,7 +57,9 @@ const styles = StyleSheet.create({
   addBtn: {
     padding: 7,
     paddingHorizontal: 15,
-    backgroundColor: '#007C00',
+    backgroundColor: '#27272A',
+    borderColor: 'D7D7D7',
+    borderWidth: 1,
     borderRadius: 10,
     textAlign: 'center',
   },
