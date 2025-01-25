@@ -62,8 +62,8 @@ const Tabs: React.FC = ({navigation}: any) => {
   const closeSidebar = () => {
     Animated.spring(sidebarTranslate, {
       toValue: -width * 0.76,
-      friction: 8, // Adjust to control damping
-      tension: 40, // Adjust for spring stiffness
+      friction: 50, // Adjust to control damping
+      tension: 30, // Adjust for spring stiffness
       useNativeDriver: true,
     }).start(() => {
       setIsOpen(false);
@@ -73,7 +73,7 @@ const Tabs: React.FC = ({navigation}: any) => {
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 20;
+        return Math.abs(gestureState.dx) > 10;
       },
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dx < 0) {
@@ -81,7 +81,7 @@ const Tabs: React.FC = ({navigation}: any) => {
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dx < -width * 0.38) {
+        if (gestureState.dx < -width * 0.1) {
           closeSidebar();
         } else {
           openSidebar();
