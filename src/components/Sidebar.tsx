@@ -32,7 +32,7 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
 
     const toggleDropdown = () => {
         if (isDropdownOpen) {
-                setIsDropdownOpen(false);
+            setIsDropdownOpen(false);
         } else {
             setIsDropdownOpen(true);
         }
@@ -40,11 +40,12 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
 
     useEffect(() => {
         Animated.timing(dropdownHeight, {
-          toValue: isDropdownOpen ? 127 : 0, // set desired height
-          duration: 150,
-          useNativeDriver: false,
+            toValue: isDropdownOpen ? 42 : 0, // set desired height
+            duration: 150,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: false,
         }).start();
-      }, [isDropdownOpen]);
+    }, [isDropdownOpen]);
 
     const setIsDropdownOpen = (value: boolean) => {
         setDropdownIndex(value ? index : -1);
@@ -60,7 +61,7 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
 
     const handleRegisterDelete = () => {
         Alert.alert(
-            'Delete Register',
+            'Delete',
             'Are you sure you want to delete this register?',
             [
                 {
@@ -104,7 +105,7 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
     };
     const handleClearCards = () => {
         Alert.alert(
-            'Clear Register',
+            'Clear',
             'Are you sure you want to clear this register?',
             [
                 {
@@ -148,40 +149,70 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
                 )}
             </TouchableOpacity>
             <TouchableOpacity
-                style={isActive ? styles.activeRegisterButton : styles.registerButton}
-                onPress={handleActiveRegister}>
+                style={[
+                    styles.registerButton,
+                    isDropdownOpen && styles.registerButtonDropdownOpen, // Style for dropdown open
+                    isActive && styles.activeRegisterButton, // Style for active register
+                ]}
+                onPress={handleActiveRegister}
+            >
                 <Text style={styles.emojiText}>📝</Text>
                 <TextInput
                     value={displayName}
                     editable={isEditable}
                     onChangeText={text => handleInputChange(text)}
                     style={styles.menuText}
+                    // numberOfLines={1}
+                    maxLength={13}
                 />
             </TouchableOpacity>
             {isDropdownOpen && (
                 <View
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 40,
-                        zIndex: 10000000,
-                        width: 130,
+                        position: 'relative',
+                        zIndex: 100,
+                        marginRight: 40,
                     }}>
                     <Animated.View style={[styles.dropdown, { height: dropdownHeight }]}>
-                        <TouchableOpacity style={styles.firstBtn} onPress={handleRename}>
-                            <Text style={styles.dropdownItemText}>Rename</Text>
-                            <View style={styles.fixLine}></View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.dropdownItem}
-                            onPress={handleClearCards}>
-                            <Text style={styles.dropdownItemText}>Clear</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.dropdownItem}
-                            onPress={handleRegisterDelete}>
-                            <Text style={styles.dropdownItemText}>Delete</Text>
-                        </TouchableOpacity>
+                        <View style={styles.editDropdown}>
+                            <TouchableOpacity style={styles.dropdownItem} onPress={handleRename}>
+                                <Image
+                                    source={require('../assets/icons/dropDownMenu/rename.png')}
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        objectFit: 'contain',
+                                        tintColor: 'white',
+                                    }}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.dropdownItem}
+                                onPress={handleClearCards}>
+                                <Image
+                                    source={require('../assets/icons/dropDownMenu/clear.png')}
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        objectFit: 'contain',
+                                        tintColor: 'white',
+                                    }}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.dropdownItem}
+                                onPress={handleRegisterDelete}>
+                                <Image
+                                    source={require('../assets/icons/dropDownMenu/delete.png')}
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        objectFit: 'contain',
+                                        tintColor: 'white',
+                                    }}
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </Animated.View>
                 </View>
             )}
@@ -230,7 +261,7 @@ const Sidebar: React.FC = () => {
         <View style={styles.container}>
             {/* Sidebar */}
             <View style={styles.mainContent}>
-                <Text style={styles.sidebarText}>Available Registers</Text>
+                <Text style={styles.sidebarText}>My Registers</Text>
             </View>
             {/* register component */}
             <ScrollView
@@ -257,7 +288,7 @@ const Sidebar: React.FC = () => {
                 <TouchableOpacity
                     style={styles.createButtonStyles}
                     onPress={handleAddRegister}>
-                    <Text style={styles.mainText}>Create New</Text>
+                    <Text style={styles.mainText}>Add</Text>
                     <Image
                         source={require('../assets/icons/add-register.png')}
                         style={{ width: 20, height: 20 }}
@@ -275,9 +306,9 @@ const styles = StyleSheet.create({
     },
     sidebarText: {
         color: '#fff',
-        fontSize: 21,
+        fontSize: 20,
         fontWeight: 'bold',
-        marginLeft: 20,
+        marginLeft: 50,
     },
     scrollView: {
         flex: 1,
@@ -292,8 +323,8 @@ const styles = StyleSheet.create({
     },
 
     mainContent: {
-        marginTop: 20,
-        marginBottom: 35,
+        marginTop: 5,
+        marginBottom: 25,
     },
     menuButton: {
         position: 'absolute',
@@ -311,17 +342,19 @@ const styles = StyleSheet.create({
     menuText: {
         marginLeft: 8,
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
+        flexShrink: 1, // Allows the text to shrink to fit the available space
+        overflow: 'hidden', // Hides any overflowing content
     },
     emojiText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     mainText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'semibold',
     },
     registerButton: {
@@ -341,10 +374,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#128700',
-        borderRadius: 10,
         paddingLeft: 25,
-        borderWidth: 1,
         borderColor: '#045600',
+        borderRadius: 10,
+        borderWidth: 1,
+    },
+    registerButtonDropdownOpen: {
+        borderBottomRightRadius: 0, // Override only when dropdown is open
+        borderBottomLeftRadius: 0,
     },
     regId: {
         position: 'absolute',
@@ -352,7 +389,7 @@ const styles = StyleSheet.create({
         top: 15,
         fontSize: 12,
         color: '#fff',
-        zIndex: 100000000,
+        zIndex: 100,
     },
     createButton: {
         width: '100%',
@@ -376,46 +413,37 @@ const styles = StyleSheet.create({
         paddingRight: 14,
     },
     dropdown: {
-        width: '100%',
-        backgroundColor: '#f0f0f0',
+        // width: '100%',
+        backgroundColor: '#3F3F3F',
         overflow: 'hidden',
         borderRadius: 10,
+        borderTopRightRadius: 0,
+        borderTopLeftRadius: 0,
     },
+
+    editDropdown: {
+        flexDirection: 'row',
+        gap: 20,
+        // alignItems: 'center',
+        justifyContent: 'center',
+    },
+
     dropdownItem: {
         padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        maxWidth: 60,
     },
     dropdownItemText: {
         fontSize: 16,
     },
-    firstBtn: {
-        padding: 10,
-        marginRight: 40,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
-    textX: {
-        fontSize: 20,
-        color: '#ff0000',
-    },
-    dropdownClose: {
-        position: 'absolute',
-        top: 5,
-        right: 0,
-        alignItems: 'center',
-        width: 40,
-        height: 40,
-        borderBottomColor: '#ccc',
-    },
-    fixLine: {
-        position: 'absolute',
-        bottom: -1,
-        right: -40,
-        width: 40,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
+
+    // fixLine: {
+    //     position: 'absolute',
+    //     bottom: -1,
+    //     right: -40,
+    //     width: 40,
+    //     borderBottomWidth: 1,
+    //     borderBottomColor: '#ccc',
+    // },
 });
 
 export default Sidebar;
