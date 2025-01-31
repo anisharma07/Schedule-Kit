@@ -474,6 +474,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginHorizontal: 5,
+    marginTop: 70,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: '#3D3D3D',

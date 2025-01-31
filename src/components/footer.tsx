@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import Svg, {Path} from 'react-native-svg';
+
 type FooterProps = {
   navigate: (screen: string) => void;
 };
@@ -16,12 +16,6 @@ const Footer: React.FC<FooterProps> = ({navigate}) => {
             source={require('../assets/icons/navigation/home.png')}
             style={styles.logo}
           />
-          {activeNum == 1 ? (
-            <Image
-              source={require('../assets/icons/navigation/glow.png')}
-              style={styles.activeTab}
-            />
-          ) : null}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
@@ -30,24 +24,12 @@ const Footer: React.FC<FooterProps> = ({navigate}) => {
             source={require('../assets/icons/navigation/team.png')}
             style={styles.logo}
           />
-          {activeNum == 2 ? (
-            <Image
-              source={require('../assets/icons/navigation/glow.png')}
-              style={styles.activeTab}
-            />
-          ) : null}
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigate('Ai')}>
           <Image
             source={require('../assets/icons/navigation/ai.png')}
             style={styles.logo}
           />
-          {activeNum == 3 ? (
-            <Image
-              source={require('../assets/icons/navigation/glow.png')}
-              style={styles.activeTab}
-            />
-          ) : null}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
@@ -56,12 +38,6 @@ const Footer: React.FC<FooterProps> = ({navigate}) => {
             source={require('../assets/icons/navigation/time-table.png')}
             style={styles.logo}
           />
-          {activeNum == 4 ? (
-            <Image
-              source={require('../assets/icons/navigation/glow.png')}
-              style={styles.activeTab}
-            />
-          ) : null}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
@@ -70,12 +46,6 @@ const Footer: React.FC<FooterProps> = ({navigate}) => {
             source={require('../assets/icons/navigation/settings.png')}
             style={styles.logo}
           />
-          {activeNum == 5 ? (
-            <Image
-              source={require('../assets/icons/navigation/glow.png')}
-              style={styles.activeTab}
-            />
-          ) : null}
         </TouchableOpacity>
       </View>
     </View>

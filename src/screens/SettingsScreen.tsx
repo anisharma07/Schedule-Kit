@@ -1,173 +1,219 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  Button,
-  Alert,
-  StyleSheet,
-  TouchableOpacity,
+    View,
+    Text,
+    Button,
+    Alert,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
 } from 'react-native';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 // import {GOOGLE_WEB_CLIENT_ID} from '@env';
 import firestore from '@react-native-firebase/firestore';
 import useStore from '../store/store';
-import {TextInput} from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 // ...existing code...
 
 GoogleSignin.configure({
-  webClientId:
-    '869900680343-6plovr08jc85d8p0fp9fgv48iiekntce.apps.googleusercontent.com',
+    webClientId:
+        '869900680343-6plovr08jc85d8p0fp9fgv48iiekntce.apps.googleusercontent.com',
 });
 
 const SettingsScreen: React.FC = () => {
-  // ...existing code...
-  const {registers, setRegisters} = useStore();
-  const [userID, setUserID] = useState<string>('');
-  const [register_no, setRegisterNo] = useState<number>(0);
+    // ...existing code...
+    const { registers, setRegisters } = useStore();
+    const [userID, setUserID] = useState<string>('');
+    const [register_no, setRegisterNo] = useState<number>(0);
 
-  const [googleUser, setGoogleUser] = useState<FirebaseAuthTypes.User | null>(
-    null,
-  );
-  const sendUserDataToFirestore = async (user: FirebaseAuthTypes.User) => {
-    try {
-      await firestore().collection('users').doc(user.uid).set({
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-      });
-    } catch (error) {
-      console.error('Error sending user data to Firestore: ', error);
-    }
-  };
-  const handleGoogleSignIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      await GoogleSignin.signOut();
-      await GoogleSignin.signIn();
-      const {idToken} = await GoogleSignin.getTokens();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      const userCredential = await auth().signInWithCredential(
-        googleCredential,
-      );
-      setGoogleUser(userCredential.user);
-      Alert.alert('Signed in with Google!');
-      sendUserDataToFirestore(userCredential.user);
-    } catch (error) {
-      Alert.alert('Google Sign-In Error: ' + error);
-    }
-  };
+    const [googleUser, setGoogleUser] = useState<FirebaseAuthTypes.User | null>(
+        null,
+    );
+    const sendUserDataToFirestore = async (user: FirebaseAuthTypes.User) => {
+        try {
+            await firestore().collection('users').doc(user.uid).set({
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+            });
+        } catch (error) {
+            console.error('Error sending user data to Firestore: ', error);
+        }
+    };
+    const handleGoogleSignIn = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            await GoogleSignin.signOut();
+            await GoogleSignin.signIn();
+            const { idToken } = await GoogleSignin.getTokens();
+            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+            const userCredential = await auth().signInWithCredential(
+                googleCredential,
+            );
+            setGoogleUser(userCredential.user);
+            Alert.alert('Signed in with Google!');
+            sendUserDataToFirestore(userCredential.user);
+        } catch (error) {
+            Alert.alert('Google Sign-In Error: ' + error);
+        }
+    };
 
-  const handleInputChange = (value: number) => {
-    setRegisterNo(Math.min(Object.keys(registers).length - 1, value));
-  };
+    const handleInputChange = (value: number) => {
+        setRegisterNo(Math.min(Object.keys(registers).length - 1, value));
+    };
 
-  const handleSyncData = async () => {
-    if (googleUser) {
-      try {
-        const userDoc = await firestore()
-          .collection('users')
-          .doc(googleUser.uid)
-          .get();
-        const userData = userDoc.data();
-        console.log('User data: ', userData);
-        const cardsData = registers[0].cards.slice(0, 8);
-        cardsData.forEach(card => {
-          console.log('Card: ', card.title);
-        });
-        await firestore().collection('registers').doc(googleUser.uid).set({
-          cards: cardsData,
-        });
-        Alert.alert('Data synced successfully!');
-      } catch (error) {
-        console.error('Error syncing data: ', error);
-        Alert.alert('Error syncing data: ' + error);
-      }
-    }
-  };
-  const handleSyncDownload = async (uid: string, register_no: number) => {
-    if (googleUser) {
-      try {
-        const userDoc = await firestore()
-          .collection('registers')
-          .doc(uid)
-          .get();
-        const cardData = userDoc.data()?.cards || [];
-        console.log('Card data: ', cardData);
+    const handleSyncData = async () => {
+        if (googleUser) {
+            try {
+                const userDoc = await firestore()
+                    .collection('users')
+                    .doc(googleUser.uid)
+                    .get();
+                const userData = userDoc.data();
+                console.log('User data: ', userData);
+                const cardsData = registers[0].cards.slice(0, 8);
+                cardsData.forEach(card => {
+                    console.log('Card: ', card.title);
+                });
+                await firestore().collection('registers').doc(googleUser.uid).set({
+                    cards: cardsData,
+                });
+                Alert.alert('Data synced successfully!');
+            } catch (error) {
+                console.error('Error syncing data: ', error);
+                Alert.alert('Error syncing data: ' + error);
+            }
+        }
+    };
+    const handleSyncDownload = async (uid: string, register_no: number) => {
+        if (googleUser) {
+            try {
+                const userDoc = await firestore()
+                    .collection('registers')
+                    .doc(uid)
+                    .get();
+                const cardData = userDoc.data()?.cards || [];
+                console.log('Card data: ', cardData);
 
-        setRegisters(register_no, cardData);
-        Alert.alert('Data synced successfully!');
-      } catch (error) {
-        console.error('Error syncing data: ', error);
-        Alert.alert('Error syncing data: ' + error);
-      }
-    }
-  };
+                setRegisters(register_no, cardData);
+                Alert.alert('Data synced successfully!');
+            } catch (error) {
+                console.error('Error syncing data: ', error);
+                Alert.alert('Error syncing data: ' + error);
+            }
+        }
+    };
 
-  const handleSignOut = async () => {
-    try {
-      await auth().signOut();
-      setGoogleUser(null);
-      Alert.alert('Signed out successfully!');
-    } catch (error) {
-      Alert.alert('Sign-Out Error: ' + error);
-    }
-  };
-  const copyToClipboard = (text: string) => {
-    Clipboard.setString(text);
-    Alert.alert('Copied to clipboard!');
-  };
-  return (
-    <View style={styles.container}>
-      {/* ...existing code... */}
-      {googleUser ? (
-        <View>
-          <Text style={{color: '#fff'}}>
-            Welcome, {googleUser.displayName}!
-          </Text>
-          <TouchableOpacity onPress={() => copyToClipboard(googleUser.uid)}>
-            <Text style={{color: '#fff'}}>User Id, {googleUser.uid}</Text>
-          </TouchableOpacity>
-          <Button title="Sign Out from Google" onPress={handleSignOut} />
-          <Button title="Sync Data" onPress={handleSyncData} />
+    const handleSignOut = async () => {
+        try {
+            await auth().signOut();
+            setGoogleUser(null);
+            Alert.alert('Signed out successfully!');
+        } catch (error) {
+            Alert.alert('Sign-Out Error: ' + error);
+        }
+    };
+    const copyToClipboard = (text: string) => {
+        Clipboard.setString(text);
+        Alert.alert('Copied to clipboard!');
+    };
+    return (
+        <View style={styles.container}>
+            <View style={styles.contentContainer2}>
+                <View style={styles.settingsBox}>
+                    <Image
+                        source={require('../assets/icons/navigation/settings.png')}
+                        style={{ width: 25, height: 25 }}
+                    />
 
-          <Text style={{color: '#fff'}}>Copy From user,</Text>
-          <TextInput
-            placeholder="User Id"
-            value={userID}
-            onChangeText={text => setUserID(text)}
-            style={{color: '#fff'}}
-          />
-          <TextInput
-            placeholder="Register No"
-            value={register_no.toString()}
-            keyboardType="numeric"
-            onChangeText={text => handleInputChange(parseInt(text) || 0)}
-            style={{color: '#fff'}}
-          />
+                    <Text style={styles.settingsText}>Settings</Text>
+                </View>
+            </View>
 
-          <Button
-            title="Sync Data"
-            onPress={() => handleSyncDownload(userID, register_no)}
-          />
+            {/* ...existing code... */}
+            {googleUser ? (
+                <View>
+                    <Text style={{ color: '#fff' }}>
+                        Welcome, {googleUser.displayName}!
+                    </Text>
+                    <TouchableOpacity onPress={() => copyToClipboard(googleUser.uid)}>
+                        <Text style={{ color: '#fff' }}>User Id, {googleUser.uid}</Text>
+                    </TouchableOpacity>
+                    <Button title="Sign Out from Google" onPress={handleSignOut} />
+                    <Button title="Sync Data" onPress={handleSyncData} />
+
+                    <Text style={{ color: '#fff' }}>Copy From user,</Text>
+                    <TextInput
+                        placeholder="User Id"
+                        value={userID}
+                        onChangeText={text => setUserID(text)}
+                        style={{ color: '#fff' }}
+                    />
+                    <TextInput
+                        placeholder="Register No"
+                        value={register_no.toString()}
+                        keyboardType="numeric"
+                        onChangeText={text => handleInputChange(parseInt(text) || 0)}
+                        style={{ color: '#fff' }}
+                    />
+
+                    <Button
+                        title="Sync Data"
+                        onPress={() => handleSyncDownload(userID, register_no)}
+                    />
+                </View>
+            ) : (
+                <View style={styles.centerContainer}>
+                    <Button title="Sign In with Google" onPress={handleGoogleSignIn} />
+                </View>
+            )}
         </View>
-      ) : (
-        <Button title="Sign In with Google" onPress={handleGoogleSignIn} />
-      )}
-    </View>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    // ...existing code...
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#18181B',
-  },
+    container: {
+        // ...existing code...
+        flex: 1,
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        backgroundColor: '#18181B',
+    },
+    contentContainer2: {
+        marginTop: 20,
+        marginBottom: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        alignContent: 'center',
+    },
+    settingsBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        flex: 1,
+        gap: 10,
+    },
+    settingsText: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    heading2: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 });
 
 export default SettingsScreen;

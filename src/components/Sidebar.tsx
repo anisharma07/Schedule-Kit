@@ -28,7 +28,7 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
         renameRegister,
         clearCardsAttendance,
     } = useStore();
-    //   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
 
     const toggleDropdown = () => {
         if (isDropdownOpen) {
@@ -40,7 +40,7 @@ const Register: React.FC<RegisterProps> = ({ name, index, isActive, isDropdownOp
 
     useEffect(() => {
         Animated.timing(dropdownHeight, {
-            toValue: isDropdownOpen ? 42 : 0, // set desired height
+            toValue: isDropdownOpen ? 42 : 0,
             duration: 150,
             easing: Easing.out(Easing.ease),
             useNativeDriver: false,
