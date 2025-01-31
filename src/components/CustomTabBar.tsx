@@ -1,128 +1,161 @@
-import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
-import {MaterialTopTabBarProps} from '@react-navigation/material-top-tabs';
-import {EdgeInsets} from 'react-native-safe-area-context';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({
-  state,
-  descriptors,
-  navigation,
+    state,
+    descriptors,
+    navigation,
 }) => {
-  return (
-    <View style={styles.navigationBar}>
-      <View style={styles.footer}>
-        {state.routes.map((route, index) => {
-          const {options} = descriptors[route.key];
-          const isFocused = state.index === index;
+    const [footerWidth, setFooterWidth] = useState(0);
+    const tabIndicator = useRef(new Animated.Value(0)).current;
+    const [indicatorVisible, setIndicatorVisible] = useState(false);
+    const ACTIVE_COLOR = '#F2F3F4';
+    const INDICATOR_WIDTH = 40;
+    const tabWidth = footerWidth / state.routes.length;
+    const offset = state.index * tabWidth + (tabWidth - INDICATOR_WIDTH) / 2;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+    useEffect(() => {
+        if (footerWidth === 0) return; // wait for layout
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+        if (!indicatorVisible) {
+            tabIndicator.setValue(offset);
+            setIndicatorVisible(true);
+        } else {
+            Animated.timing(tabIndicator, {
+                toValue: offset,
+                duration: 150,
+                useNativeDriver: false,
+            }).start();
+        }
+    }, [state.index, footerWidth, indicatorVisible]);
 
-          const onLongPress = () => {
-            navigation.emit({
-              type: 'tabLongPress',
-              target: route.key,
-            });
-          };
 
-          let iconName: any = null;
-          if (route.name === 'Home') {
-            iconName = require('../assets/icons/navigation/home.png');
-          } else if (route.name === 'Settings') {
-            iconName = require('../assets/icons/navigation/settings.png');
-          } else if (route.name === 'Ai') {
-            iconName = require('../assets/icons/navigation/ai.png');
-          } else if (route.name === 'Teams') {
-            iconName = require('../assets/icons/navigation/team.png');
-          } else if (route.name === 'Time') {
-            iconName = require('../assets/icons/navigation/time-table.png');
-          }
-
-          return (
-            <TouchableOpacity
-              key={route.key}
-              accessibilityRole="button"
-              accessibilityState={isFocused ? {selected: true} : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              onPress={onPress}
-              onLongPress={onLongPress}
-              style={styles.button}>
-              <View style={styles.boxy}>
-                <Image source={iconName} style={styles.logo} />
-              </View>
-              {isFocused && (
-                <Image
-                  source={require('../assets/icons/navigation/glow.png')}
-                  style={styles.activeTab}
+    return (
+        <View style={styles.navigationBar}>
+            <View
+                style={styles.footer}
+                onLayout={(event) => {
+                    const { width } = event.nativeEvent.layout;
+                    setFooterWidth(width);
+                }}
+            >
+                {/* Indicator */}
+                < Animated.View
+                    style={
+                        [
+                            styles.indicator,
+                            {
+                                transform: [{ translateX: tabIndicator }],
+                                backgroundColor: ACTIVE_COLOR,
+                                width: INDICATOR_WIDTH,
+                            },
+                        ]}
                 />
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
+                {
+                    state.routes.map((route, index) => {
+                        const { options } = descriptors[route.key];
+                        const isFocused = state.index === index;
+
+                        const onPress = () => {
+                            const event = navigation.emit({
+                                type: 'tabPress',
+                                target: route.key,
+                                canPreventDefault: true,
+                            });
+
+                            if (!isFocused && !event.defaultPrevented) {
+                                navigation.navigate(route.name);
+                            }
+                        };
+
+                        const onLongPress = () => {
+                            navigation.emit({
+                                type: 'tabLongPress',
+                                target: route.key,
+                            });
+                        };
+
+                        let iconName: any = null;
+                        if (route.name === 'Home') {
+                            iconName = require('../assets/icons/navigation/home.png');
+                        } else if (route.name === 'Settings') {
+                            iconName = require('../assets/icons/navigation/settings.png');
+                        } else if (route.name === 'Ai') {
+                            iconName = require('../assets/icons/navigation/ai.png');
+                        } else if (route.name === 'Teams') {
+                            iconName = require('../assets/icons/navigation/team.png');
+                        } else if (route.name === 'Time') {
+                            iconName = require('../assets/icons/navigation/time-table.png');
+                        }
+
+                        return (
+                            <TouchableOpacity
+                                onPress={onPress}
+                                onLongPress={onLongPress}
+                                style={styles.button}
+                                key={route.name}
+                            >
+                                <View style={styles.boxy}>
+                                    <Image
+                                        source={iconName}
+                                        style={[
+                                            styles.logo,
+                                            { tintColor: isFocused ? '#F2F3F4' : '#888' }
+                                        ]}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })
+                }
+            </View>
+        </View >
+    );
 };
 
 const styles = StyleSheet.create({
-  navigationBar: {
-    width: '100%',
-    height: 70,
-    position: 'absolute',
-    bottom: 12,
-    left: 0,
-  },
-  footer: {
-    width: '95%',
-    borderRadius: 50,
-    margin: 'auto',
-    backgroundColor: '#27272A',
-    height: 70,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    flexDirection: 'row',
-  },
-  footerText: {
-    color: '#ffffff',
-    fontSize: 14,
-  },
-  logo: {
-    width: 25,
-    height: 25,
-  },
-  button: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 12,
-  },
-  activeTab: {
-    width: 70,
-    height: 70,
-    position: 'absolute',
-    top: 0,
-    left: -17,
-    zIndex: -1,
-  },
-  boxy: {
-    paddingLeft: 5,
-    paddingRight: 5,
-    height: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    navigationBar: {
+        width: '100%',
+        height: 65,
+        position: 'absolute',
+        // bottom: 0,
+        top: 70,
+        left: 0,
+    },
+    footer: {
+        width: '100%',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        height: 65,
+        flexDirection: 'row',
+    },
+    logo: {
+        width: 25,
+        height: 25,
+    },
+    button: {
+        alignItems: 'center',
+        position: 'relative',
+        flex: 1,
+        height: '100%',
+    },
+    boxy: {
+        width: '100%',
+        // paddingLeft: 5,
+        // paddingRight: 5,
+        height: 65,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    indicator: {
+        position: 'absolute',
+        bottom: 0,
+        // width: 70,
+        height: 1,
+        borderRadius: 1,
+    },
 });
 
 export default CustomTabBar;
