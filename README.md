@@ -49,6 +49,36 @@ Ensure you have the following installed:
 ```sh
  npx expo start
 ```
+#### 4. Firebase Setup Guide for React Native App
+
+## Step 1: Create a Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com/).
+2. Click **"Add project"**, enter a project name, and follow the setup steps.
+3. Once created, go to **Project Settings** and note down:
+   - Project Number
+   - Project ID
+   - Storage Bucket
+
+## Step 2: Register Your App
+1. In **Firebase Console**, go to **Project Settings > General**.
+2. Under **Your apps**, click **Add App** and select **Android**.
+3. Enter your **package name** (e.g., `com.yourappname`).
+4. Follow the steps and download the `google-services.json` file.
+
+## Step 3: Configure API Keys and OAuth Clients
+1. In **Firebase Console**, go to **Project Settings > Service Accounts**.
+2. Set up authentication via **OAuth 2.0**.
+3. Obtain API keys and OAuth client IDs.
+4. Replace placeholders in `google-services.json` with actual values.
+
+## Step 4: Add `google-services.json` to Your Project
+1. Place `google-services.json` inside your React Native project's `android/app/` directory.
+2. Open `android/build.gradle` and add:
+   ```gradle
+   dependencies {
+       classpath("com.google.gms:google-services:4.3.10") // Make sure it's the latest version
+   }
+
 
 ## Tech Stack
 - **React Native** - Frontend framework
