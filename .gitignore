@@ -42,6 +42,7 @@ npm-debug.log
 yarn-error.log
 package-lock.json
 
+android/app/google-services.json
 
 # fastlane
 #
