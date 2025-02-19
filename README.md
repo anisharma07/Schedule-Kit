@@ -9,7 +9,10 @@ A **React Native** application to track and manage attendance efficiently. The a
 - ☁️ **Cloud Sync (Optional)**: Sync data across multiple devices.
 
 ## App Screenshot
-![App Screenshot](./src/assets/screenshots/ss1.jpeg)
+| ![Image 1](./src/assets/screenshots/ss1.jpeg) | ![Image 2](./src/assets/screenshots/ss2.jpeg) | ![Image 3](./src/assets//screenshots/ss3.jpeg) |
+|------------------------|------------------------|------------------------|
+| ![Image 4](./src/assets/screenshots/ss4.jpeg) | ![Image 5](./src/assets/screenshots/ss5.jpeg) | ![Image 6](./src/assets/screenshots/ss6.jpeg) |
+
 
 ## Installation & Setup
 
@@ -61,5 +64,5 @@ This project is licensed under the **MIT License**.
 
 ---
 ### 📩 Need Help?
-For issues or suggestions, create a GitHub issue or contact me at [your.email@example.com].
+For issues or suggestions, create a GitHub issue or contact me at [anis42390@gmail.com].
 
