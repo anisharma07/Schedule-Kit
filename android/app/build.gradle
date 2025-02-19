@@ -91,9 +91,9 @@ android {
    signingConfigs {
         release {
             storeFile file('my-release-key.jks')
-            storePassword 'Ani#2003'
-            keyAlias 'my-key-alias'
-            keyPassword 'Ani#2003'
+            storePassword '<your-release-key-store-password>'
+            keyAlias '<your-key-alias>'
+            keyPassword '<your-key-password>'
         }
     }
     buildTypes {
