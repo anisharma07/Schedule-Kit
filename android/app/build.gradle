@@ -73,6 +73,9 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 
 android {
@@ -91,13 +94,13 @@ android {
   
 
 signingConfigs {
-       release {
-           storeFile file('my-release-key.jks')
-           storePassword 'Ani#2003'
-           keyAlias 'my-key-alias'
-           keyPassword 'Ani#2003'
-       }
-   }
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
 
     buildTypes {
         release {
