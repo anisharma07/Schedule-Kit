@@ -59,12 +59,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     left: 0,
+    backgroundColor: '#27272A',
+
   },
   footer: {
     width: '95%',
     borderRadius: 50,
     margin: 'auto',
-    backgroundColor: '#27272A',
+    // backgroundColor: '#27272A',
     height: 80,
     alignItems: 'center',
     justifyContent: 'space-evenly',

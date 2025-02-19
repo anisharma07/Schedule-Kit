@@ -120,14 +120,16 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 65,
         position: 'absolute',
-        // bottom: 0,
-        top: 70,
+        bottom: 0,
+        // top: 70,
         left: 0,
     },
     footer: {
         width: '100%',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
+    backgroundColor: '#27272A',
+
         height: 65,
         flexDirection: 'row',
     },
