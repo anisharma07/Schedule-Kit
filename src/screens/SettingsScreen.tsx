@@ -8,6 +8,8 @@ import {
     TouchableOpacity,
     Image,
 } from 'react-native';
+import { GOOGLE_WEB_CLIENT_ID } from '@env';
+
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 // import {GOOGLE_WEB_CLIENT_ID} from '@env';
@@ -19,8 +21,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 // ...existing code...
 
 GoogleSignin.configure({
-    webClientId:
-        '869900680343-6plovr08jc85d8p0fp9fgv48iiekntce.apps.googleusercontent.com',
+    webClientId: GOOGLE_WEB_CLIENT_ID,
 });
 
 const SettingsScreen: React.FC = () => {
