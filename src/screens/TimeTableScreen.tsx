@@ -444,6 +444,7 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
     backgroundColor: '#18181B',
     height: '100%',
   },
@@ -467,14 +468,13 @@ const styles = StyleSheet.create({
   },
 
   tabContainer: {
-    paddingVertical: 10,
+    paddingVertical: 25,
     paddingHorizontal: 20,
   },
   tabButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginHorizontal: 5,
-    marginTop: 70,
     borderRadius: 50,
     borderWidth: 1,
     borderColor: '#3D3D3D',
@@ -516,7 +516,6 @@ const styles = StyleSheet.create({
   },
   contentContainer2: {
     marginTop: 20,
-    marginBottom: 20,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',

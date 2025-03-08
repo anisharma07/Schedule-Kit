@@ -14,13 +14,11 @@ import useStore from '../store/store';
 import {CardInterface} from '../types/cards';
 import Calendar from '../components/Calendar';
 import {convertToUTM, formatToHHMM} from '../utils/functions';
-import Calendar2 from '../components/Calendar2';
 import {TextInput} from 'react-native-gesture-handler';
 
 const ViewCardDetails: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
   const {
-    editCard,
     registers,
     removeMarking,
     markAbsentWithDate,

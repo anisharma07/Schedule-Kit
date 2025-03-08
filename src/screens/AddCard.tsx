@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import {
   convertToUTM,
 } from '../utils/functions';
 import Calendar from '../components/Calendar';
+import TimePicker from '../components/TimePicker';
 import TagColorPicker from '../components/TagColorPicker';
 
 const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -55,8 +56,30 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     endTime: '12:00',
     isAM_end: false,
   });
-  const [includeAbsents, setIncludeAbsents] = useState(false);
-  const [frequency, setFrequency] = useState('0');
+  const setStartAm = (value: boolean) => {
+    setCurrDayTime(prev => ({
+      ...prev,
+      isAM_start: value,
+    }));
+  }
+  const setEndAm = (value: boolean) => {
+    setCurrDayTime(prev => ({
+      ...prev,
+      isAM_end: value,
+    }));
+  }
+  const setStartTime = (value: string) => {
+    setCurrDayTime(prev => ({
+      ...prev,
+      startTime: value,
+    }));
+  }
+  const setEndTime = (value: string) => {
+    setCurrDayTime(prev => ({
+      ...prev,
+      endTime: value,
+    }));
+  }
   const registerName = registers[activeRegister].name;
 
   const [card, setCard] = useState<CardInterface>({
@@ -97,12 +120,6 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     }));
   };
 
-  const handleTimeChange = (field: string, value: string | number) => {
-    setCurrDayTime(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
   const handleLimitToggle = (value: boolean) => {
     setCard(prev => ({
       ...prev,
@@ -140,23 +157,10 @@ const AddCard: React.FC = ({navigation, route}: any) => {
     handleIdChange(registers[activeRegister]?.cards?.length);
   }, [registers, activeRegister]);
 
-  const toggleStartAM = () => {
-    setCurrDayTime(prev => ({
-      ...prev,
-      isAM_start: !prev.isAM_start,
-    }));
-  };
-  const toggleEndAM = () => {
-    setCurrDayTime(prev => ({
-      ...prev,
-      isAM_end: !prev.isAM_end,
-    }));
-  };
-
   const isValidTime = (time: string) => {
     // check format HH:MM and not alphabets
+    console.log(time);
     if (!/^\d{2}:\d{2}$/.test(time)) return false;
-
     // check if hours and minutes are in valid range
     const [hours, minutes] = time.split(':').map(Number);
     if (hours < 1 || hours > 12) return false;
@@ -165,6 +169,7 @@ const AddCard: React.FC = ({navigation, route}: any) => {
   };
 
   const handleAddTime = () => {
+    console.log(currDayTime);
     if (currDayTime.startTime === '00:00' && currDayTime.endTime === '00:00') {
       Alert.alert('Error', 'Please fill Correct Time!');
       return;
@@ -321,23 +326,17 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             style={{width: 40, height: 40}}
           />
         </TouchableOpacity>
-        <Text style={{color: '#fff', fontSize: 24}}>
+        <Text style={{color: '#fff', fontSize: 20}}>
           {registerName.length > 15
             ? registerName.substring(0, 15) + '..'
             : registerName}
         </Text>
         <View style={styles.functionButtons}>
-          <TouchableOpacity onPress={handleClearCard}>
-            <Image
-              source={require('../assets/images/clear.png')}
-              style={{width: 50, height: 50, objectFit: 'contain'}}
-            />
+          <TouchableOpacity onPress={handleClearCard} style={styles.clearCard}>
+           <Text style={{color:'#fff', fontWeight: 600}}>Clear</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSubmit}>
-            <Image
-              source={require('../assets/images/save.png')}
-              style={{width: 50, height: 50, objectFit: 'contain'}}
-            />
+          <TouchableOpacity onPress={handleSubmit} style={styles.saveCard}>
+            <Text style={{color:'#fff', fontWeight: 600}}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -440,32 +439,24 @@ const AddCard: React.FC = ({navigation, route}: any) => {
               gap: 8,
               alignItems: 'center',
             }}>
-            <TextInput
-              style={styles.ampm}
-              value={currDayTime.startTime}
-              onChangeText={value => handleTimeChange('startTime', value)}
+            <TimePicker
+              timeString={currDayTime.startTime}
+              isAM={currDayTime.isAM_start}
+              changeIsAM={setStartAm}
+              changeTimeString={setStartTime}
             />
-            <TouchableOpacity onPress={toggleStartAM}>
-              <Text style={styles.ampm}>
-                {currDayTime.isAM_start ? 'AM' : 'PM'}
-              </Text>
-            </TouchableOpacity>
             <Text style={styles.label}>to</Text>
-            <TextInput
-              style={styles.ampm}
-              value={currDayTime.endTime}
-              onChangeText={value => handleTimeChange('endTime', value)}
+            <TimePicker
+              timeString={currDayTime.endTime}
+              isAM={currDayTime.isAM_end}
+              changeIsAM={setEndAm}
+              changeTimeString={setEndTime}
             />
-            <TouchableOpacity onPress={toggleEndAM}>
-              <Text style={styles.ampm}>
-                {currDayTime.isAM_end ? 'AM' : 'PM'}
-              </Text>
-            </TouchableOpacity>
           </View>
           <TouchableOpacity
             style={styles.addTimeBtn}
             onPress={() => handleAddTime()}>
-            <Text style={{color: '#fff', textAlign: 'center'}}>Add</Text>
+            <Text style={{color: '#fff', textAlign: 'center', fontWeight: 600}}>Add</Text>
           </TouchableOpacity>
         </View>
         <ScrollView
@@ -474,8 +465,8 @@ const AddCard: React.FC = ({navigation, route}: any) => {
           showsHorizontalScrollIndicator={false}
           style={styles.scrollView}>
           {Object.keys(card.days).map(day =>
-            card.days[day as keyof Days].map((dayTime: Slots) => (
-              <View style={styles.tabViewStyle}>
+            card.days[day as keyof Days].map((dayTime: Slots, index) => (
+              <View key={index} style={styles.tabViewStyle}>
                 <TouchableOpacity key={dayTime.start} style={styles.tabButton}>
                   <Text style={styles.tabLabel}>
                     {daysOfWeekMap[day].substring(0, 3)},{' '}
@@ -496,7 +487,6 @@ const AddCard: React.FC = ({navigation, route}: any) => {
             )),
           )}
         </ScrollView>
-
         <Text style={styles.label}>Tag Color</Text>
         <TagColorPicker
           selectedColor={card.tagColor}
@@ -548,6 +538,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: '100%',
     margin: 'auto',
+    marginTop: 20,
     paddingBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
@@ -605,6 +596,22 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
   },
+  clearCard: {
+    backgroundColor: '#CE0000',
+    borderRadius: 8,
+    padding: 7,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveCard: {
+    backgroundColor: '#008817',
+    borderRadius: 8,
+    padding: 7,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#18181B',
@@ -630,7 +637,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#CE0000',
     borderRadius: 8,
     padding: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
+
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 'auto',

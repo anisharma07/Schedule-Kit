@@ -45,11 +45,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#18181B',
   },
   headerContent: {
-    height: 140,
     margin: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     width: '92%',
     paddingBottom: 5,
     paddingTop: 20,
