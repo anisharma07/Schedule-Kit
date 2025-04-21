@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
-  Button,
+  // Button,
   ScrollView,
   Alert,
   TouchableOpacity,
@@ -21,7 +21,7 @@ import {
   convertToStartSeconds,
   convertToUTM,
 } from '../utils/functions';
-import Calendar from '../components/Calendar';
+// import Calendar from '../components/Calendar';
 import TimePicker from '../components/TimePicker';
 import TagColorPicker from '../components/TagColorPicker';
 
@@ -46,7 +46,7 @@ interface currDayTimeProps {
   isAM_end: boolean;
 }
 
-const AddCard: React.FC = ({navigation, route}: any) => {
+const AddCard: React.FC = ({navigation}: any) => {
   const {addCard, activeRegister, registers, defaultTargetPercentage} =
     useStore();
   const [currDayTime, setCurrDayTime] = useState<currDayTimeProps>({

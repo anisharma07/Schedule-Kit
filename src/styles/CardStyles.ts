@@ -13,6 +13,9 @@ const styles = StyleSheet.create({
     margin: 'auto',
     // maxWidth: 500,
   },
+  cardWrapper: {
+    width: '100%',
+  },
 
   closeButton: {
     position: 'absolute',
@@ -184,6 +187,11 @@ const styles = StyleSheet.create({
     zIndex: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  threeDotBigIcon: {
+    width: 20,
+    height: 20,
+    objectFit: 'contain',
   },
   miniLogo: {
     width: 24,

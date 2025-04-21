@@ -24,13 +24,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   toggleSidebar,
   handleMenuOpen,
 }: any) => {
-  const {registers, activeRegister, updatedAt, setRegisterCardSize} =
-    useStore();
+  const {registers, activeRegister, updatedAt} = useStore();
   const [currentRegister, setCurrentRegister] = useState<CardInterface[]>([]);
   useEffect(() => {
     setCurrentRegister(registers[activeRegister]?.cards || []);
     console.log(registers[activeRegister]?.card_size);
-  }, [updatedAt, activeRegister]);
+  }, [updatedAt, activeRegister, registers]);
 
   useEffect(() => {
     currentRegister.forEach(card => {
@@ -56,12 +55,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         changeStack={navigation.navigate}
         registerName={registers[activeRegister]?.name}
       />
-      {currentRegister.length == 0 && (
+      {currentRegister.length === 0 && (
         <View style={styles.emptyContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('Add')}>
             <Image
               source={require('../assets/images/add-icon.png')}
-              style={{width: 80, height: 80}}
+              style={styles.addIcon}
             />
           </TouchableOpacity>
           <Text style={styles.emptyText}>Click Add Button to Add Subject</Text>
@@ -78,7 +77,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         <Card />
         <Card />
         <Card /> */}
-        {registers[activeRegister].card_size == 'normal' &&
+        {registers[activeRegister].card_size === 'normal' &&
           currentRegister.map((card, index) => (
             <Card
               key={card.id}
@@ -97,8 +96,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               delay={150 * index}
             />
           ))}
-        {registers[activeRegister].card_size == 'small' &&
-          currentRegister.map((card, index) => (
+        {registers[activeRegister].card_size === 'small' &&
+          currentRegister.map(card => (
             <MiniCard
               key={card.id}
               id={card.id}
@@ -125,6 +124,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#18181B',
   },
+  addIcon: {width: 80, height: 80},
+
   scrollView: {
     flex: 1,
   },

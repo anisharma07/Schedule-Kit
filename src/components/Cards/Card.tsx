@@ -1,11 +1,10 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity, Image, ToastAndroid} from 'react-native';
 import styles from '../../styles/CardStyles';
 import ConicGradient from './ConicGradient';
 import useStore from '../../store/store';
 
 import * as Animatable from 'react-native-animatable';
-import Toast from 'react-native-toast-message';
 
 interface CardProps {
   id: number;
@@ -51,39 +50,46 @@ const Card: React.FC<CardProps> = ({
   }, [present, total]);
 
   useEffect(() => {
+    const getStatus = () => {
+      if (percentage >= target_percentage) {
+        let totalClasses = cardTotals + 1;
+        let myPercentage = percentage;
+        let canLeave = -1;
+        while (myPercentage >= target_percentage) {
+          myPercentage = (cardPresents / totalClasses) * 100;
+          canLeave++;
+          totalClasses++;
+        }
+
+        if (canLeave === 0) {
+          return 'on track, cannot leave next class';
+        }
+        if (canLeave === 1) {
+          return 'on track, can leave 1 class';
+        } else {
+          return 'can leave ' + canLeave + ' classes';
+        }
+      } else {
+        let totalClasses = cardTotals;
+        let presentClasses = cardPresents;
+        let myPercentage = percentage;
+        let cannotMiss = 0;
+        while (myPercentage < target_percentage) {
+          myPercentage = (presentClasses / totalClasses) * 100;
+          cannotMiss++;
+          presentClasses++;
+          totalClasses++;
+        }
+        if (cannotMiss === 1 || cannotMiss === 0) {
+          return 'cannot leave next class';
+        } else {
+          return 'cannot leave next ' + cannotMiss + ' classes';
+        }
+      }
+    };
     setCardStatus(getStatus());
-  }, [cardTotals]);
+  }, [cardTotals, cardPresents, percentage, target_percentage]);
 
-  const getStatus = () => {
-    if (percentage >= target_percentage) {
-      let totalClasses = cardTotals + 1;
-      let myPercentage = percentage;
-      let canLeave = -1;
-      while (myPercentage >= target_percentage) {
-        myPercentage = (cardPresents / totalClasses) * 100;
-        canLeave++;
-        totalClasses++;
-      }
-
-      if (canLeave === 0) return 'on track, cannot leave next class';
-      if (canLeave === 1) return 'on track, can leave 1 class';
-      else return 'can leave ' + canLeave + ' classes';
-    } else {
-      let totalClasses = cardTotals;
-      let presentClasses = cardPresents;
-      let myPercentage = percentage;
-      let cannotMiss = 0;
-      while (myPercentage < target_percentage) {
-        myPercentage = (presentClasses / totalClasses) * 100;
-        cannotMiss++;
-        presentClasses++;
-        totalClasses++;
-      }
-      if (cannotMiss === 1 || cannotMiss === 0)
-        return 'cannot leave next class';
-      else return 'cannot leave next ' + cannotMiss + ' classes';
-    }
-  };
   const MarkPresent = () => {
     setCardPresents(prev => prev + 1);
     setCardTotals(prev => prev + 1);
@@ -103,9 +109,9 @@ const Card: React.FC<CardProps> = ({
   };
   useEffect(() => {
     const updatePercentage = () => {
-      const percentage =
-        cardTotals == 0 ? '0' : ((cardPresents / cardTotals) * 100).toFixed(1);
-      setPercentage(parseFloat(percentage));
+      const percent =
+        cardTotals === 0 ? '0' : ((cardPresents / cardTotals) * 100).toFixed(1);
+      setPercentage(parseFloat(percent));
     };
     updatePercentage();
   }, [cardPresents, cardTotals]);
@@ -121,21 +127,18 @@ const Card: React.FC<CardProps> = ({
       }
     };
     setColor();
-  }, [percentage]);
+  }, [percentage, target_percentage]);
 
   return (
     <Animatable.View
       animation="zoomIn"
       delay={delay + 100}
       duration={500}
-      style={{
-        width: '100%',
-      }}>
+      style={styles.cardWrapper}>
       <View style={[styles.cardContainer, {backgroundColor: cardColor}]}>
         <View style={styles.leftBox}>
           <View style={styles.header}>
-            <View
-              style={[styles.indicator, {backgroundColor: tagColor}]}></View>
+            <View style={[styles.indicator, {backgroundColor: tagColor}]} />
             <Text style={styles.headerTitle}>
               {title.length > 14 ? title.substring(0, 15) + '..' : title}
             </Text>
@@ -178,7 +181,7 @@ const Card: React.FC<CardProps> = ({
             onPress={() => handleMenuOpen(cardRegister, id)}>
             <Image
               source={require('../../assets/icons/three-dot.png')}
-              style={{width: 20, height: 20, objectFit: 'contain'}}
+              style={styles.threeDotBigIcon}
             />
           </TouchableOpacity>
           <View style={styles.actionButtons}>

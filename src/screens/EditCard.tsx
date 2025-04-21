@@ -24,6 +24,7 @@ import {
 import Calendar from '../components/Calendar';
 import TimePicker from '../components/TimePicker';
 import TagColorPicker from '../components/TagColorPicker';
+import {pick} from '@react-native-documents/picker';
 
 const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 type DayOfWeek = (typeof daysOfWeek)[number];
@@ -46,8 +47,6 @@ interface currDayTimeProps {
   isAM_end: boolean;
 }
 
-
-
 const EditCard: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
   const {editCard, registers, defaultTargetPercentage} = useStore();
@@ -64,25 +63,25 @@ const EditCard: React.FC = ({navigation, route}: any) => {
       ...prev,
       isAM_start: value,
     }));
-  }
+  };
   const setEndAm = (value: boolean) => {
     setCurrDayTime(prev => ({
       ...prev,
       isAM_end: value,
     }));
-  }
+  };
   const setStartTime = (value: string) => {
     setCurrDayTime(prev => ({
       ...prev,
       startTime: value,
     }));
-  }
+  };
   const setEndTime = (value: string) => {
     setCurrDayTime(prev => ({
       ...prev,
       endTime: value,
     }));
-  }
+  };
 
   const registerName = registers[card_register].name;
   const [card, setCard] = useState<CardInterface>({
@@ -117,7 +116,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
       setPresents(currCard.present);
       setTotals(currCard.total);
     }
-  }, [card_register, card_id]);
+  }, [card_register, card_id, registers]);
   const setSelectedColor = (color: string) => {
     setCard(prev => ({
       ...prev,
@@ -150,7 +149,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
   const handleLimitType = (value: boolean) => {
     setCard(prev => ({
       ...prev,
-      limitType: value == true ? 'with-absent' : 'without-absent',
+      limitType: value === true ? 'with-absent' : 'without-absent',
     }));
   };
   const handleDayChange = (day: keyof Days) => {
@@ -162,12 +161,18 @@ const EditCard: React.FC = ({navigation, route}: any) => {
 
   const isValidTime = (time: string) => {
     // check format HH:MM and not alphabets
-    if (!/^\d{2}:\d{2}$/.test(time)) return false;
+    if (!/^\d{2}:\d{2}$/.test(time)) {
+      return false;
+    }
 
     // check if hours and minutes are in valid range
     const [hours, minutes] = time.split(':').map(Number);
-    if (hours < 1 || hours > 12) return false;
-    if (minutes < 0 || minutes > 59) return false;
+    if (hours < 1 || hours > 12) {
+      return false;
+    }
+    if (minutes < 0 || minutes > 59) {
+      return false;
+    }
     return true;
   };
 
@@ -350,7 +355,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
         <TouchableOpacity onPress={handleNavigateBack}>
           <Image
             source={require('../assets/images/back-btn.png')}
-            style={{width: 40, height: 40}}
+            style={styles.iconsStyle}
           />
         </TouchableOpacity>
         <Text style={{color: '#fff', fontSize: 20}}>
@@ -359,12 +364,12 @@ const EditCard: React.FC = ({navigation, route}: any) => {
             : registerName}
         </Text>
         <View style={styles.functionButtons}>
-           <TouchableOpacity onPress={handleClearCard} style={styles.clearCard}>
-                     <Text style={{color:'#fff', fontWeight: 600}}>Clear</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleSubmit} style={styles.saveCard}>
-                      <Text style={{color:'#fff', fontWeight: 600}}>Save</Text>
-                    </TouchableOpacity>
+          <TouchableOpacity onPress={handleClearCard} style={styles.clearCard}>
+            <Text style={{color: '#fff', fontWeight: 600}}>Clear</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSubmit} style={styles.saveCard}>
+            <Text style={{color: '#fff', fontWeight: 600}}>Save</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <View>
@@ -380,12 +385,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
           value={card.title}
           onChangeText={value => handleInputChange('title', value)}
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-          }}>
+        <View style={styles.markings}>
           <View style={{width: '48%', minWidth: 75}}>
             <Text style={styles.label}>Present</Text>
             <TextInput
@@ -395,7 +395,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
               keyboardType="numeric"
               value={card.present.toString()}
               onChangeText={value =>
-                handleInputChange('present', parseInt(value) || 0)
+                handleInputChange('present', parseFloat(value) || 0)
               }
             />
           </View>
@@ -423,18 +423,12 @@ const EditCard: React.FC = ({navigation, route}: any) => {
           keyboardType="numeric"
           value={card.target_percentage.toString()}
           onChangeText={value =>
-            handleInputChange('target_percentage', parseInt(value) || 0)
+            handleInputChange('target_percentage', parseFloat(value) || 0)
           }
         />
 
         <Text style={styles.label}>Add Slots</Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            marginBottom: 15,
-          }}>
+        <View style={styles.pickWrapper}>
           <View style={styles.pickerView}>
             <Picker
               selectedValue={currDayTime.day}
@@ -446,21 +440,9 @@ const EditCard: React.FC = ({navigation, route}: any) => {
             </Picker>
           </View>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              gap: 8,
-              alignItems: 'center',
-            }}>
-             <TimePicker
+        <View style={styles.timePicker}>
+          <View style={styles.timePickerSub}>
+            <TimePicker
               timeString={currDayTime.startTime}
               isAM={currDayTime.isAM_start}
               changeIsAM={setStartAm}
@@ -477,7 +459,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
           <TouchableOpacity
             style={styles.addTimeBtn}
             onPress={() => handleAddTime()}>
-            <Text style={{color: '#fff', textAlign: 'center', fontWeight:600}}>Add</Text>
+            <Text style={styles.addSlotTxt}>Add</Text>
           </TouchableOpacity>
         </View>
         <ScrollView
@@ -535,7 +517,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
                   style={styles.input3}
                   keyboardType="numeric"
                   value={card.limit.toString()}
-                  onChangeText={text => handleFreqUpdate(parseInt(text) || 0)}
+                  onChangeText={text => handleFreqUpdate(parseFloat(text) || 0)}
                 />
               </View>
 
@@ -566,6 +548,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
   },
+  iconsStyle: {width: 40, height: 40},
   clearCard: {
     backgroundColor: '#CE0000',
     borderRadius: 8,
@@ -598,6 +581,12 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
   },
+  pickWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 15,
+  },
 
   topContainer: {
     flex: 1,
@@ -616,6 +605,18 @@ const styles = StyleSheet.create({
   },
   tabViewStyle: {
     position: 'relative',
+  },
+  timePicker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  timePickerSub: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
   },
   removeTimeBtn: {
     position: 'absolute',
@@ -655,6 +656,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
   },
+  markings: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   addTimeBtn: {
     backgroundColor: '#CE0000',
     borderRadius: 8,
@@ -664,6 +670,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 'auto',
   },
+  addSlotTxt: {color: '#fff', textAlign: 'center', fontWeight: 600},
   subLabel: {
     fontSize: 14,
     color: '#ccc',

@@ -16,7 +16,7 @@ function App(): React.JSX.Element {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={styles.gesture}>
       <SafeAreaView style={[styles.container]}>
         <StatusBar barStyle={'light-content'} backgroundColor="#18181B" />
         <MainApp />
@@ -30,6 +30,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#18181B',
+  },
+  gesture: {
+    flex: 1,
   },
 });
 export default App;

@@ -2,7 +2,6 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import {StyleSheet} from 'react-native';
 import Tabs from './Tabs/Tabs';
 import AddCard from './screens/AddCard';
 import EditCard from './screens/EditCard';
@@ -46,7 +45,5 @@ const MainApp = ({}) => {
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default MainApp;

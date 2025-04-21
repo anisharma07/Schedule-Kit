@@ -16,6 +16,7 @@ const TagColorPicker: React.FC<TagProps> = ({
     '#80C4E9',
     '#4CC9FE',
     '#08C2FF',
+    '#3b82f6',
     '#16C47F',
     '#2ECC71',
     '#8FD14F',

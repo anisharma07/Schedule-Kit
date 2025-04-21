@@ -40,9 +40,9 @@ const MiniCard: React.FC<CardProps> = ({
   };
   useEffect(() => {
     const updatePercentage = () => {
-      const percentage =
-        cardTotals == 0 ? '0' : ((cardPresents / cardTotals) * 100).toFixed(1);
-      setPercentage(parseFloat(percentage));
+      const percent =
+        cardTotals === 0 ? '0' : ((cardPresents / cardTotals) * 100).toFixed(1);
+      setPercentage(parseFloat(percent));
     };
     updatePercentage();
   }, [cardPresents, cardTotals]);
@@ -58,12 +58,11 @@ const MiniCard: React.FC<CardProps> = ({
       }
     };
     setColor();
-  }, [percentage]);
+  }, [percentage, target_percentage]);
   return (
     <View style={[styles.cardContainer, {backgroundColor: cardColor}]}>
       <View style={styles.miniHeader}>
-        <View
-          style={[styles.miniIndicator, {backgroundColor: tagColor}]}></View>
+        <View style={[styles.miniIndicator, {backgroundColor: tagColor}]} />
 
         <Text style={styles.miniHeaderTitle}>
           {title.length > 8 ? title.substring(0, 8) + '..' : title}

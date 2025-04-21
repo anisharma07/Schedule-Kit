@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 import React from 'react';
 import {
   View,
@@ -17,7 +17,6 @@ import {convertToStartSeconds, convertToUTM} from '../utils/functions';
 interface TimeProps {
   handleMenuOpen: (r: number, c: number) => void;
 }
-let ind = 0;
 const daysOfWeek = [
   'Sunday',
   'Monday',
@@ -88,7 +87,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
       contentContainerStyle={styles.tabContainer}
       showsHorizontalScrollIndicator={false}
       style={styles.scrollView}>
-      {newDays.map((day, index) => (
+      {newDays.map((day) => (
         <TouchableOpacity
           key={day}
           style={[
@@ -114,7 +113,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
 
 const TimeTableScreen: React.FC<TimeProps> = ({
   navigation,
-  route,
+  // route,
   handleMenuOpen,
 }: any) => {
   const {registers, activeRegister} = useStore();
@@ -444,7 +443,7 @@ const TimeTableScreen: React.FC<TimeProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
+
     backgroundColor: '#18181B',
     height: '100%',
   },
