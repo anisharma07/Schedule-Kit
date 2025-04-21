@@ -109,9 +109,29 @@ Ensure you have the following installed:
 - **React Navigation** - Seamless app navigation
 - For more, refer to labels in repo's description.
 
-## Contributing
+## 🚀 Contribution Guidelines
 
-Contributions are welcome! Feel free to fork the repository and submit a pull request.
+1. **Fork** the repository.
+
+2. **Select or create an issue** to work on.
+
+3. **Create a branch** in your fork:
+
+   ```bash
+   git checkout -b feature/#<issue_number>
+   ```
+
+4. **Write meaningful commit messages**:
+
+   ```bash
+   git commit -m "feat: add AI scheduling option (fixes #42)"
+   ```
+
+   Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+5. Work on a single issue per PR.
+
+6. Push and create a PR
 
 ## License
 
