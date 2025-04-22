@@ -204,7 +204,9 @@ export const useStore = create<StoreState>()(
       markAbsentWithDate: (date: Date, cardId: number, registerId: number) =>
         set(state => {
           const register = state.registers[registerId];
-          const card = register.cards.find(card => card.id === cardId);
+          const card = register.cards.find(
+            card_temp => card_temp.id === cardId,
+          );
 
           if (!card) {
             return state;
@@ -225,14 +227,14 @@ export const useStore = create<StoreState>()(
               ...state.registers,
               [registerId]: {
                 ...state.registers[registerId],
-                cards: state.registers[registerId].cards.map(card =>
-                  card.id === cardId
+                cards: state.registers[registerId].cards.map(card_temp =>
+                  card_temp.id === cardId
                     ? {
-                        ...card,
-                        total: card.total + 1,
+                        ...card_temp,
+                        total: card_temp.total + 1,
                         markedAt: newMarkedAt,
                       }
-                    : card,
+                    : card_temp,
                 ),
               },
             },
@@ -242,7 +244,9 @@ export const useStore = create<StoreState>()(
       markPresentWithDate: (date: Date, cardId: number, registerId: number) =>
         set(state => {
           const register = state.registers[registerId];
-          const card = register.cards.find(card => card.id === cardId);
+          const card = register.cards.find(
+            card_temp => card_temp.id === cardId,
+          );
 
           if (!card) {
             return state;
@@ -263,15 +267,15 @@ export const useStore = create<StoreState>()(
               ...state.registers,
               [registerId]: {
                 ...state.registers[registerId],
-                cards: state.registers[registerId].cards.map(card =>
-                  card.id === cardId
+                cards: state.registers[registerId].cards.map(card_temp =>
+                  card_temp.id === cardId
                     ? {
-                        ...card,
-                        present: card.present + 1,
-                        total: card.total + 1,
+                        ...card_temp,
+                        present: card_temp.present + 1,
+                        total: card_temp.total + 1,
                         markedAt: newMarkedAt,
                       }
-                    : card,
+                    : card_temp,
                 ),
               },
             },
@@ -281,7 +285,9 @@ export const useStore = create<StoreState>()(
       removeMarking: (registerId: number, cardId: number, markingId: number) =>
         set(state => {
           const register = state.registers[registerId];
-          const card = register.cards.find(card => card.id === cardId);
+          const card = register.cards.find(
+            card_temp => card_temp.id === cardId,
+          );
 
           if (!card) {
             return state;
@@ -297,7 +303,7 @@ export const useStore = create<StoreState>()(
 
           // Update present and total
           const marking = card.markedAt.find(
-            marking => marking.id === markingId,
+            markingTemp => markingTemp.id === markingId,
           );
           const newPresent = card.present - (marking?.isPresent ? 1 : 0);
           const newTotal = card.total - 1;
@@ -308,15 +314,15 @@ export const useStore = create<StoreState>()(
               ...state.registers,
               [registerId]: {
                 ...state.registers[registerId],
-                cards: state.registers[registerId].cards.map(card =>
-                  card.id === cardId
+                cards: state.registers[registerId].cards.map(card_temp =>
+                  card_temp.id === cardId
                     ? {
-                        ...card,
+                        ...card_temp,
                         markedAt: newMarkedAt,
                         present: newPresent,
                         total: newTotal,
                       }
-                    : card,
+                    : card_temp,
                 ),
               },
             },
@@ -327,7 +333,9 @@ export const useStore = create<StoreState>()(
       undoChanges: (registerId: number, cardId: number) =>
         set(state => {
           const register = state.registers[registerId];
-          const card = register.cards.find(card => card.id === cardId);
+          const card = register.cards.find(
+            card_temp => card_temp.id === cardId,
+          );
 
           if (!card || card.markedAt.length === 0) {
             return state;
@@ -347,15 +355,15 @@ export const useStore = create<StoreState>()(
               ...state.registers,
               [registerId]: {
                 ...state.registers[registerId],
-                cards: state.registers[registerId].cards.map(card =>
-                  card.id === cardId
+                cards: state.registers[registerId].cards.map(card_temp =>
+                  card_temp.id === cardId
                     ? {
-                        ...card,
+                        ...card_temp,
                         markedAt: newMarkedAt,
                         present: newPresent,
                         total: newTotal,
                       }
-                    : card,
+                    : card_temp,
                 ),
               },
             },

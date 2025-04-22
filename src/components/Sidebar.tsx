@@ -250,10 +250,10 @@ const Sidebar: React.FC = () => {
           return (
             <Register
               name={registers[key].name}
-              isActive={key === activeRegister ? true : false}
+              isActive={Number(key) === Number(activeRegister) ? true : false}
               isDropdownOpen={dropDownIndex === index}
               setDropdownIndex={setDropdownIndex}
-              index={parseFloat(key)}
+              index={Number(key)}
               key={index}
             />
           );

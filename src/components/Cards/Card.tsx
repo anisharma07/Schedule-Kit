@@ -111,7 +111,7 @@ const Card: React.FC<CardProps> = ({
     const updatePercentage = () => {
       const percent =
         cardTotals === 0 ? '0' : ((cardPresents / cardTotals) * 100).toFixed(1);
-      setPercentage(parseFloat(percent));
+      setPercentage(Number(percent));
     };
     updatePercentage();
   }, [cardPresents, cardTotals]);

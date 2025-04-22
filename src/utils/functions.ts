@@ -1,7 +1,7 @@
 // 23:34 -> 11:34 pm string converter
 
 const convertToUTM = (time: string): string => {
-  const [hour, minute] = time.split(':').map(t => parseFloat(t));
+  const [hour, minute] = time.split(':').map(t => Number(t));
   const isAM = hour < 12;
   let convertedHour = isAM ? hour : hour === 12 ? hour : hour - 12;
   if (hour === 0) {
@@ -13,7 +13,7 @@ const convertToUTM = (time: string): string => {
 };
 
 const convertTo24Hrs = (time: string, isAM: boolean): string => {
-  const [hour, minute] = time.split(':').map(t => parseFloat(t));
+  const [hour, minute] = time.split(':').map(t => Number(t));
   const convertedHour = isAM
     ? hour === 12
       ? '00'
@@ -32,7 +32,7 @@ const formatToHHMM = (dateString: string): string => {
 };
 
 const convertToStartSeconds = (time: string): number => {
-  const [hour, minute] = time.split(':').map(t => parseFloat(t));
+  const [hour, minute] = time.split(':').map(t => Number(t));
   return hour * 3600 + minute * 60;
 };
 

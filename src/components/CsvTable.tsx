@@ -40,7 +40,7 @@ const CSVTable: React.FC<CSVTableProps> = ({tableData, setTableData}) => {
   }, [tableData]);
 
   return (
-    <ScrollView horizontal>
+    <ScrollView horizontal style={styles.scroller}>
       <View style={styles.table}>
         {tableData.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
@@ -87,10 +87,12 @@ const CSVTable: React.FC<CSVTableProps> = ({tableData, setTableData}) => {
 const styles = StyleSheet.create({
   table: {
     flexDirection: 'column',
-    backgroundColor: '#000',
+  },
+  scroller: {
+    margin: 10,
+    backgroundColor: '#111111',
     padding: 10,
     borderRadius: 10,
-    margin: 10,
   },
   redBinIcon: {
     width: 20,
@@ -103,7 +105,8 @@ const styles = StyleSheet.create({
   cell: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
     width: 120,
     height: 50,
     overflow: 'visible',

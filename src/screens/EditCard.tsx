@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
-  Button,
+  // Button,
   ScrollView,
   Alert,
   TouchableOpacity,
@@ -21,10 +21,10 @@ import {
   convertToStartSeconds,
   convertToUTM,
 } from '../utils/functions';
-import Calendar from '../components/Calendar';
+// import Calendar from '../components/Calendar';
 import TimePicker from '../components/TimePicker';
 import TagColorPicker from '../components/TagColorPicker';
-import {pick} from '@react-native-documents/picker';
+// import {pick} from '@react-native-documents/picker';
 
 const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 type DayOfWeek = (typeof daysOfWeek)[number];
@@ -358,17 +358,17 @@ const EditCard: React.FC = ({navigation, route}: any) => {
             style={styles.iconsStyle}
           />
         </TouchableOpacity>
-        <Text style={{color: '#fff', fontSize: 20}}>
+        <Text style={styles.registerName}>
           {registerName.length > 15
             ? registerName.substring(0, 15) + '..'
             : registerName}
         </Text>
         <View style={styles.functionButtons}>
           <TouchableOpacity onPress={handleClearCard} style={styles.clearCard}>
-            <Text style={{color: '#fff', fontWeight: 600}}>Clear</Text>
+            <Text style={styles.saveBtnTxt}>Clear</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleSubmit} style={styles.saveCard}>
-            <Text style={{color: '#fff', fontWeight: 600}}>Save</Text>
+            <Text style={styles.saveBtnTxt}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -386,7 +386,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
           onChangeText={value => handleInputChange('title', value)}
         />
         <View style={styles.markings}>
-          <View style={{width: '48%', minWidth: 75}}>
+          <View style={styles.presentTotalBlock}>
             <Text style={styles.label}>Present</Text>
             <TextInput
               style={styles.input}
@@ -395,12 +395,12 @@ const EditCard: React.FC = ({navigation, route}: any) => {
               keyboardType="numeric"
               value={card.present.toString()}
               onChangeText={value =>
-                handleInputChange('present', parseFloat(value) || 0)
+                handleInputChange('present', Number(value) || 0)
               }
             />
           </View>
 
-          <View style={{width: '48%', minWidth: 75}}>
+          <View style={styles.presentTotalBlock}>
             <Text style={styles.label}>Total</Text>
             <TextInput
               style={styles.input}
@@ -409,7 +409,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
               keyboardType="numeric"
               value={card.total.toString()}
               onChangeText={value =>
-                handleInputChange('total', parseInt(value) || 0)
+                handleInputChange('total', Number(value) || 0)
               }
             />
           </View>
@@ -423,7 +423,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
           keyboardType="numeric"
           value={card.target_percentage.toString()}
           onChangeText={value =>
-            handleInputChange('target_percentage', parseFloat(value) || 0)
+            handleInputChange('target_percentage', Number(value) || 0)
           }
         />
 
@@ -517,7 +517,7 @@ const EditCard: React.FC = ({navigation, route}: any) => {
                   style={styles.input3}
                   keyboardType="numeric"
                   value={card.limit.toString()}
-                  onChangeText={text => handleFreqUpdate(parseFloat(text) || 0)}
+                  onChangeText={text => handleFreqUpdate(Number(text) || 0)}
                 />
               </View>
 
@@ -548,7 +548,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
   },
+  saveBtnTxt: {color: '#fff', fontWeight: 600},
   iconsStyle: {width: 40, height: 40},
+  presentTotalBlock: {width: '48%', minWidth: 75},
   clearCard: {
     backgroundColor: '#CE0000',
     borderRadius: 8,
@@ -557,6 +559,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  registerName: {color: '#fff', fontSize: 20},
   saveCard: {
     backgroundColor: '#008817',
     borderRadius: 8,

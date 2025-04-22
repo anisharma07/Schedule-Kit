@@ -71,14 +71,14 @@ const TabButtons: React.FC<TabButtonProps> = ({
     setActiveDayIndex(daysOfWeek.indexOf(activeDay));
   }, [activeDay]);
   useEffect(() => {
-    const newDays = [];
+    const newDaysTemp = [];
     for (let i = activeDayIndex; i < daysOfWeek.length; i++) {
-      newDays.push(daysOfWeek[i]);
+      newDaysTemp.push(daysOfWeek[i]);
     }
     for (let i = 0; i < activeDayIndex; i++) {
-      newDays.push(daysOfWeek[i]);
+      newDaysTemp.push(daysOfWeek[i]);
     }
-    setNewDays(newDays);
+    setNewDays(newDaysTemp);
   }, [activeDayIndex]);
 
   return (
@@ -87,21 +87,21 @@ const TabButtons: React.FC<TabButtonProps> = ({
       contentContainerStyle={styles.tabContainer}
       showsHorizontalScrollIndicator={false}
       style={styles.scrollView}>
-      {newDays.map((day) => (
+      {newDays.map(day => (
         <TouchableOpacity
           key={day}
           style={[
             styles.tabButton,
             selectedDay === day && styles.selectedTabButton,
             activeDay === day && styles.activeTabButton,
-            day == 'Sunday' && {borderColor: '#6C6C6C', borderWidth: 1},
+            day === 'Sunday' && styles.tabButtonSunday,
           ]}
           onPress={() => setSelectedDay(day)}>
           <Text
             style={[
               styles.tabButtonText,
               selectedDay === day && styles.selectedTabButtonText,
-              day == 'Sunday' && {color: '#6C6C6C'},
+              day === 'Sunday' && styles.tabButtonSundayTxt,
             ]}>
             {day}
           </Text>
@@ -137,7 +137,7 @@ const TimeTableScreen: React.FC<TimeProps> = ({
   };
 
   const [selectedDay, setSelectedDay] = useState(formatDate(new Date()));
-  const [activeDay, setActiveDay] = useState(formatDate(new Date()));
+  const activeDay = formatDate(new Date());
   const [completedClasses, setCompletedClasses] = useState<SelectedDayCard[]>(
     [],
   );
@@ -154,8 +154,8 @@ const TimeTableScreen: React.FC<TimeProps> = ({
       // current time in seconds
       const currentTime = today.getHours() * 3600 + today.getMinutes() * 60;
       const onGoingClasses: SelectedDayCard[] = [];
-      const upcomingClasses: SelectedDayCard[] = [];
-      const completedClasses: SelectedDayCard[] = [];
+      const upComing: SelectedDayCard[] = [];
+      const completeClasses: SelectedDayCard[] = [];
       const onGoingTimeSlot: Record<string, CardInterface[]> = {};
       const upcomingTimeSlot: Record<string, CardInterface[]> = {};
       const completedTimeSlot: Record<string, CardInterface[]> = {};
@@ -163,26 +163,24 @@ const TimeTableScreen: React.FC<TimeProps> = ({
       registers[activeRegister]?.cards?.forEach(card => {
         card?.days[currKey]?.forEach(dayTime => {
           const timeSlot = `${dayTime.start}-${dayTime.end}`;
-          {
-            if (
-              currentTime >= convertToStartSeconds(dayTime.start) &&
-              currentTime <= convertToStartSeconds(dayTime.end)
-            ) {
-              if (!onGoingTimeSlot[timeSlot]) {
-                onGoingTimeSlot[timeSlot] = [];
-              }
-              onGoingTimeSlot[timeSlot].push(card);
-            } else if (currentTime < convertToStartSeconds(dayTime.start)) {
-              if (!upcomingTimeSlot[timeSlot]) {
-                upcomingTimeSlot[timeSlot] = [];
-              }
-              upcomingTimeSlot[timeSlot].push(card);
-            } else {
-              if (!completedTimeSlot[timeSlot]) {
-                completedTimeSlot[timeSlot] = [];
-              }
-              completedTimeSlot[timeSlot].push(card);
+          if (
+            currentTime >= convertToStartSeconds(dayTime.start) &&
+            currentTime <= convertToStartSeconds(dayTime.end)
+          ) {
+            if (!onGoingTimeSlot[timeSlot]) {
+              onGoingTimeSlot[timeSlot] = [];
             }
+            onGoingTimeSlot[timeSlot].push(card);
+          } else if (currentTime < convertToStartSeconds(dayTime.start)) {
+            if (!upcomingTimeSlot[timeSlot]) {
+              upcomingTimeSlot[timeSlot] = [];
+            }
+            upcomingTimeSlot[timeSlot].push(card);
+          } else {
+            if (!completedTimeSlot[timeSlot]) {
+              completedTimeSlot[timeSlot] = [];
+            }
+            completedTimeSlot[timeSlot].push(card);
           }
         });
       });
@@ -207,7 +205,7 @@ const TimeTableScreen: React.FC<TimeProps> = ({
           return startSecondsa - startSecondsb;
         })
         .forEach(timeSlot => {
-          upcomingClasses.push({
+          upComing.push({
             time: timeSlot,
             card: upcomingTimeSlot[timeSlot],
           });
@@ -220,14 +218,14 @@ const TimeTableScreen: React.FC<TimeProps> = ({
           return startSecondsa - startSecondsb;
         })
         .forEach(timeSlot => {
-          completedClasses.push({
+          completeClasses.push({
             time: timeSlot,
             card: completedTimeSlot[timeSlot],
           });
         });
       setOngoingClasses(onGoingClasses);
-      setUpcomingClasses(upcomingClasses);
-      setCompletedClasses(completedClasses);
+      setUpcomingClasses(upComing);
+      setCompletedClasses(completeClasses);
     };
 
     registers[activeRegister]?.cards?.forEach(card => {
@@ -254,7 +252,7 @@ const TimeTableScreen: React.FC<TimeProps> = ({
       });
     setDisplayCards(selectedDayCards);
     setCurrentClasses();
-  }, [activeRegister, selectedDay, activeDay]);
+  }, [activeRegister, selectedDay, activeDay, registers]);
   const handleViewDetails = (r: number, c: number) => {
     navigation.navigate('CardDetails', {
       card_register: r,
@@ -267,13 +265,13 @@ const TimeTableScreen: React.FC<TimeProps> = ({
         <View style={styles.timeTableBox}>
           <Image
             source={require('../assets/icons/navigation/time-table.png')}
-            style={{width: 25, height: 25}}
+            style={styles.timeTableIcon}
           />
 
           <Text style={styles.timeTableText}>Time Table</Text>
         </View>
         <Text style={styles.selectedDayText}>
-          {selectedDay == activeDay ? 'Today' : selectedDay.substring(0, 3)}
+          {selectedDay === activeDay ? 'Today' : selectedDay.substring(0, 3)}
           {', ' +
             getNextDate(selectedDay).getDate() +
             ' ' +
@@ -285,10 +283,10 @@ const TimeTableScreen: React.FC<TimeProps> = ({
         setSelectedDay={setSelectedDay}
         activeDay={activeDay}
       />
-      {displayCards.length == 0 && (
+      {displayCards.length === 0 && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
-            No Events {selectedDay == activeDay ? 'Today' : 'on this Day'}
+            No Events {selectedDay === activeDay ? 'Today' : 'on this Day'}
           </Text>
         </View>
       )}
@@ -296,16 +294,16 @@ const TimeTableScreen: React.FC<TimeProps> = ({
         contentInsetAdjustmentBehavior="automatic"
         style={styles.scrollView2}
         contentContainerStyle={styles.contentContainer}>
-        {selectedDay != activeDay &&
+        {selectedDay !== activeDay &&
           displayCards.length > 0 &&
-          selectedDay != activeDay && (
+          selectedDay !== activeDay && (
             <Text style={styles.eventTypeTxt}>Upcoming Classes</Text>
           )}
 
-        {selectedDay != activeDay ? (
+        {selectedDay !== activeDay ? (
           displayCards.map((cardSlot, index) => {
             return (
-              <View key={index} style={{width: '100%'}}>
+              <View key={index} style={styles.cardWrapperWfull}>
                 <Text style={styles.cardSlotTime}>
                   {formatTime(cardSlot.time)}
                 </Text>
@@ -332,13 +330,13 @@ const TimeTableScreen: React.FC<TimeProps> = ({
             );
           })
         ) : (
-          <View style={{width: '100%'}}>
+          <View style={styles.cardWrapperWfull}>
             {ongoingClasses.length > 0 && (
-              <View style={{width: '100%'}}>
+              <View style={styles.cardWrapperWfull}>
                 <Text style={styles.eventTypeTxt}>Ongoing Classes</Text>
                 {ongoingClasses.map((cardSlot, index) => {
                   return (
-                    <View key={index} style={{width: '100%'}}>
+                    <View key={index} style={styles.cardWrapperWfull}>
                       <Text style={styles.cardSlotTime}>
                         {formatTime(cardSlot.time)}
                       </Text>
@@ -367,11 +365,11 @@ const TimeTableScreen: React.FC<TimeProps> = ({
               </View>
             )}
             {upcomingClasses.length > 0 && (
-              <View style={{width: '100%'}}>
+              <View style={styles.cardWrapperWfull}>
                 <Text style={styles.eventTypeTxt}>Upcoming Classes</Text>
                 {upcomingClasses.map((cardSlot, index) => {
                   return (
-                    <View key={index} style={{width: '100%'}}>
+                    <View key={index} style={styles.cardWrapperWfull}>
                       <Text style={styles.cardSlotTime}>
                         {formatTime(cardSlot.time)}
                       </Text>
@@ -400,11 +398,11 @@ const TimeTableScreen: React.FC<TimeProps> = ({
               </View>
             )}
             {completedClasses.length > 0 && (
-              <View style={{width: '100%'}}>
+              <View style={styles.cardWrapperWfull}>
                 <Text style={styles.eventTypeTxt}>Done For Today</Text>
                 {completedClasses.map((cardSlot, index) => {
                   return (
-                    <View key={index} style={{width: '100%'}}>
+                    <View key={index} style={styles.cardWrapperWfull}>
                       <Text style={styles.cardSlotTime}>
                         {formatTime(cardSlot.time)}
                       </Text>
@@ -454,12 +452,18 @@ const styles = StyleSheet.create({
   scrollView2: {
     flex: 1,
   },
+  cardWrapperWfull: {width: '100%'},
+  timeTableIcon: {width: 25, height: 25},
   emptyContainer: {
     color: '#fff',
     height: Dimensions.get('window').height - 400,
     gap: 15,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tabButtonSunday: {borderColor: '#6C6C6C', borderWidth: 1},
+  tabButtonSundayTxt: {
+    color: '#6C6C6C',
   },
   emptyText: {
     color: '#5A5A5A',

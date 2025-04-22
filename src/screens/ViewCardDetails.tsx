@@ -18,12 +18,8 @@ import {TextInput} from 'react-native-gesture-handler';
 
 const ViewCardDetails: React.FC = ({navigation, route}: any) => {
   const {card_register, card_id} = route.params;
-  const {
-    registers,
-    removeMarking,
-    markAbsentWithDate,
-    markPresentWithDate,
-  } = useStore();
+  const {registers, removeMarking, markAbsentWithDate, markPresentWithDate} =
+    useStore();
   const getCurrentTime = () => {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -37,12 +33,18 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
   };
   const isValidTime = (time: string) => {
     // check format HH:MM and not alphabets
-    if (!/^\d{2}:\d{2}$/.test(time)) return false;
+    if (!/^\d{2}:\d{2}$/.test(time)) {
+      return false;
+    }
 
     // check if hours and minutes are in valid range
     const [hours, minutes] = time.split(':').map(Number);
-    if (hours < 0 || hours > 23) return false;
-    if (minutes < 0 || minutes > 59) return false;
+    if (hours < 0 || hours > 23) {
+      return false;
+    }
+    if (minutes < 0 || minutes > 59) {
+      return false;
+    }
     return true;
   };
 
@@ -59,8 +61,8 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
       selectedDate.getFullYear(),
       selectedDate.getMonth(),
       selectedDate.getDate(),
-      parseInt(inputTime.split(':')[0]),
-      parseInt(inputTime.split(':')[1]),
+      Number(inputTime.split(':')[0]),
+      Number(inputTime.split(':')[1]),
     );
     markAbsentWithDate(newDate, card_id, card_register);
 
@@ -82,8 +84,8 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
       selectedDate.getFullYear(),
       selectedDate.getMonth(),
       selectedDate.getDate(),
-      parseInt(inputTime.split(':')[0]),
-      parseInt(inputTime.split(':')[1]),
+      Number(inputTime.split(':')[0]),
+      Number(inputTime.split(':')[1]),
     );
     markPresentWithDate(newDate, card_id, card_register);
     if (Platform.OS === 'android') {
@@ -134,7 +136,9 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
     const currCard = registers[card_register]?.cards?.find(
       curr => curr.id === card_id,
     );
-    if (currCard) setCard(currCard);
+    if (currCard) {
+      setCard(currCard);
+    }
   }, [registers, card_register, card_id]);
 
   return (
@@ -144,10 +148,10 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
         <TouchableOpacity onPress={handleNavigateBack}>
           <Image
             source={require('../assets/images/back-btn.png')}
-            style={{width: 40, height: 40}}
+            style={styles.backBtnIcon}
           />
         </TouchableOpacity>
-        <Text style={{color: '#fff', fontSize: 24}}>
+        <Text style={styles.cardTitleTxt}>
           {card.title.length > 15
             ? card.title.substring(0, 15) + '..'
             : card.title}
@@ -162,22 +166,9 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 20,
-          paddingHorizontal: 10,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 8,
-            alignItems: 'center',
-          }}>
-          <Text style={{color: '#fff', fontSize: 18}}>Time:</Text>
+      <View style={styles.cardWrapper}>
+        <View style={styles.timeWrapper}>
+          <Text style={styles.timeTxt}>Time:</Text>
           <TextInput
             style={styles.ampm}
             value={inputTime}
@@ -187,12 +178,12 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
         <TouchableOpacity
           style={styles.addTimeBtnPresent}
           onPress={() => handleMarkPresent()}>
-          <Text style={{color: '#fff', textAlign: 'center'}}>Add Present</Text>
+          <Text style={styles.changeMarkingsTxt}>Add Present</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addTimeBtn}
           onPress={() => handleMarkAbsent()}>
-          <Text style={{color: '#fff', textAlign: 'center'}}>Add Absent</Text>
+          <Text style={styles.changeMarkingsTxt}>Add Absent</Text>
         </TouchableOpacity>
       </View>
       <Calendar
@@ -229,20 +220,16 @@ const ViewCardDetails: React.FC = ({navigation, route}: any) => {
           .map((date, index) => (
             <View key={index} style={styles.markContainer}>
               {date.isPresent ? (
-                <Text
-                  key={index}
-                  style={[styles.markings, {backgroundColor: '#00670E'}]}>
+                <Text key={index} style={[styles.markings, styles.presentBg]}>
                   Present
                 </Text>
               ) : (
-                <Text
-                  key={index}
-                  style={[styles.markings, {backgroundColor: '#750000'}]}>
+                <Text key={index} style={[styles.markings, styles.absentBg]}>
                   Absent
                 </Text>
               )}
 
-              <Text style={{color: '#fff'}}>
+              <Text style={styles.dateTxt}>
                 {new Date(date.date).toDateString()}{' '}
                 {convertToUTM(formatToHHMM(date.date))}
               </Text>
@@ -266,6 +253,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#18181B',
   },
+  dateTxt: {color: '#fff'},
+  changeMarkingsTxt: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  presentBg: {backgroundColor: '#00670E'},
+  absentBg: {backgroundColor: '#750000'},
+  cardWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  timeTxt: {color: '#fff', fontSize: 18},
+  timeWrapper: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
   header: {
     borderRadius: 15,
     width: '90%',
@@ -287,6 +295,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  cardTitleTxt: {color: '#fff', fontSize: 24},
   contentContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -352,6 +361,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  backBtnIcon: {width: 40, height: 40},
 });
 
 export default ViewCardDetails;
