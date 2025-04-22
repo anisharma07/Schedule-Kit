@@ -34,11 +34,11 @@ interface CardProps {
   days: Days;
 }
 const AiCard: React.FC<CardProps> = ({
-  id,
+  // id,
   title,
   target_percentage,
   tagColor,
-  delay,
+  // delay,
   days,
 }) => {
   return (

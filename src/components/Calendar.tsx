@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   FlatList,
   Dimensions,
   Image,
-  PanResponder,
+  // PanResponder,
 } from 'react-native';
 import {Markings} from '../types/cards';
 import GestureRecognizer from 'react-native-swipe-gestures';
@@ -55,7 +55,9 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   const isToday = (date: Date | null) => {
-    if (!date) return false;
+    if (!date) {
+      return false;
+    }
     const today = new Date();
     return (
       date.getDate() === today.getDate() &&
@@ -64,8 +66,12 @@ const Calendar: React.FC<CalendarProps> = ({
     );
   };
   const isColored = (item: Date | null) => {
-    if (!item) return false;
-    if (isToday(item)) return true;
+    if (!item) {
+      return false;
+    }
+    if (isToday(item)) {
+      return true;
+    }
     const day = item.getDate();
     const month = item.getMonth();
     const year = item.getFullYear();
@@ -74,16 +80,22 @@ const Calendar: React.FC<CalendarProps> = ({
         new Date(date.date).toLocaleDateString() ===
         new Date(year, month, day).toLocaleDateString(),
     );
-    if (marks.length === 0) return false;
+    if (marks.length === 0) {
+      return false;
+    }
     return true;
   };
   const isSunday = (date: Date | null) => {
-    if (!date) return false;
+    if (!date) {
+      return false;
+    }
     return date.getDay() === 0;
   };
 
   const isSelected = (date: Date | null) => {
-    if (!date) return false;
+    if (!date) {
+      return false;
+    }
     return (
       date.getDate() === selectedDate.getDate() &&
       date.getMonth() === selectedDate.getMonth() &&
@@ -91,7 +103,9 @@ const Calendar: React.FC<CalendarProps> = ({
     );
   };
   const findColor = (item: Date | null) => {
-    if (item == null) return '#121212';
+    if (item == null) {
+      return '#121212';
+    }
     const day = item.getDate();
     const month = item.getMonth();
     const year = item.getFullYear();
@@ -100,12 +114,20 @@ const Calendar: React.FC<CalendarProps> = ({
         new Date(date.date).toLocaleDateString() ===
         new Date(year, month, day).toLocaleDateString(),
     );
-    if (marks.length === 0) return '#121212';
+    if (marks.length === 0) {
+      return '#121212';
+    }
     const presents = marks.filter(date => date.isPresent).length;
     const absents = marks.length - presents;
-    if (presents > absents) return 'green';
-    if (absents > presents) return 'red';
-    if (presents === absents) return '#BE5200';
+    if (presents > absents) {
+      return 'green';
+    }
+    if (absents > presents) {
+      return 'red';
+    }
+    if (presents === absents) {
+      return '#BE5200';
+    }
   };
   // const [days, setDays] = useState(getDaysInMonth(currentMonth));
 
@@ -129,7 +151,7 @@ const Calendar: React.FC<CalendarProps> = ({
         <TouchableOpacity onPress={() => handleMonthChange('prev')}>
           <Image
             source={require('../assets/icons/left-arrow.png')}
-            style={{width: 20, height: 20}}
+            style={styles.arrowButtons}
           />
         </TouchableOpacity>
         <Text style={styles.headerText}>
@@ -139,7 +161,7 @@ const Calendar: React.FC<CalendarProps> = ({
         <TouchableOpacity onPress={() => handleMonthChange('next')}>
           <Image
             source={require('../assets/icons/right-arrow.png')}
-            style={{width: 20, height: 20}}
+            style={styles.arrowButtons}
           />
         </TouchableOpacity>
       </View>
@@ -164,27 +186,26 @@ const Calendar: React.FC<CalendarProps> = ({
         data={days}
         numColumns={7}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.dayCell}>
-            <TouchableOpacity
-              style={[
-                styles.cellButton,
-                isSelected(item) && styles.selectedCell,
-                {backgroundColor: isToday(item) ? '#007BFF' : findColor(item)},
-              ]}
-              onPress={() => item && setSelectedDate(item)}>
-              <Text
+        renderItem={({item}) => {
+          const bgColorToday = isToday(item) ? 'blue' : findColor(item);
+          const dayTextColor =
+            isSunday(item) && !isColored(item) ? 'red' : 'white';
+          return (
+            <View style={styles.dayCell}>
+              <TouchableOpacity
                 style={[
-                  styles.dayText,
-                  {
-                    color: isSunday(item) && !isColored(item) ? 'red' : 'white',
-                  },
-                ]}>
-                {item ? item.getDate() : ''}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+                  styles.cellButton,
+                  isSelected(item) && styles.selectedCell,
+                  {backgroundColor: bgColorToday},
+                ]}
+                onPress={() => item && setSelectedDate(item)}>
+                <Text style={[styles.dayText, {color: dayTextColor}]}>
+                  {item ? item.getDate() : ''}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        }}
       />
     </GestureRecognizer>
   );
@@ -202,6 +223,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  arrowButtons: {width: 20, height: 20},
   header: {
     width: '100%',
     flexDirection: 'row',

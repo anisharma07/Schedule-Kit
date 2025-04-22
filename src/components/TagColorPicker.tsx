@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React from 'react';
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
 
 interface TagProps {
   selectedColor: string;

@@ -14,25 +14,15 @@ const Header: React.FC<Props> = ({toggler, changeStack, registerName}) => {
         <TouchableOpacity onPress={toggler}>
           <Image
             source={require('../assets/images/registers.png')}
-            style={{width: 42, height: 42}}
+            style={styles.registerIcon}
           />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: 'bold',
-            marginLeft: 10,
-            color: 'white',
-          }}>
-          {registerName}
-        </Text>
+        <Text style={styles.registerNameTxt}>{registerName}</Text>
         <TouchableOpacity
           onPress={() => changeStack('Add')}
           style={styles.addBtn}>
-          <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-            Add
-          </Text>
+          <Text style={styles.addBtnTxt}>Add</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -44,6 +34,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#18181B',
   },
+  registerIcon: {width: 42, height: 42},
   headerContent: {
     margin: 'auto',
     flexDirection: 'row',
@@ -52,6 +43,12 @@ const styles = StyleSheet.create({
     width: '92%',
     paddingBottom: 5,
     paddingTop: 20,
+  },
+  registerNameTxt: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 10,
+    color: 'white',
   },
   addBtn: {
     padding: 7,
@@ -62,6 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
   },
+  addBtnTxt: {color: 'white', fontSize: 16, fontWeight: 'bold'},
 });
 
 export default Header;

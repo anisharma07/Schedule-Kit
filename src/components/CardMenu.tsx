@@ -1,14 +1,14 @@
 import React, {useRef, useEffect, useState} from 'react';
 import {
-  View,
+  // View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Animated,
-  Easing,
+  // Easing,
   Alert,
   Image,
-  Dimensions,
+  // Dimensions,
 } from 'react-native';
 import useStore from '../store/store';
 
@@ -20,7 +20,7 @@ interface CardMenuProps {
   navigation: any;
   makeChange: () => void;
 }
-const width = Dimensions.get('window').width;
+// const width = Dimensions.get('window').width;
 const CardMenu: React.FC<CardMenuProps> = ({
   isVisible,
   onClose,
@@ -29,7 +29,7 @@ const CardMenu: React.FC<CardMenuProps> = ({
   navigation,
   makeChange,
 }) => {
-  const {removeCard, registers, undoChanges, renameRegister} = useStore();
+  const {removeCard, registers, undoChanges} = useStore();
   const [cardName, setCardName] = useState('');
   const slideAnim = useRef(new Animated.Value(300)).current; // Initial position off-screen
 
@@ -41,7 +41,7 @@ const CardMenu: React.FC<CardMenuProps> = ({
     ) {
       setCardName(registers[RegisterId].cards[CardId].title);
     }
-  }, [RegisterId, CardId]);
+  }, [RegisterId, CardId, registers]);
   const overlayOpacity = useRef(new Animated.Value(0)).current; // Initial opacity
   useEffect(() => {
     if (isVisible) {
@@ -59,7 +59,7 @@ const CardMenu: React.FC<CardMenuProps> = ({
         }),
       ]).start();
     }
-  }, [isVisible]);
+  }, [isVisible, overlayOpacity, slideAnim]);
   const handleEdit = () => {
     navigation.navigate('Edit', {
       card_register: RegisterId,
@@ -113,7 +113,9 @@ const CardMenu: React.FC<CardMenuProps> = ({
     });
   };
 
-  if (RegisterId == -1 || CardId == -1) return null;
+  if (RegisterId === -1 || CardId === -1) {
+    return null;
+  }
   return (
     <>
       <Animated.View
@@ -129,14 +131,14 @@ const CardMenu: React.FC<CardMenuProps> = ({
         <TouchableOpacity style={styles.button} onPress={handleEdit}>
           <Image
             source={require('../assets/icons/card-menu/edit.png')}
-            style={{width: 20, height: 20}}
+            style={styles.editIcon}
           />
           <Text style={styles.buttonText}>Edit Subject</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleViewDetails}>
           <Image
             source={require('../assets/icons/card-menu/report.png')}
-            style={{width: 20, height: 20, objectFit: 'contain'}}
+            style={styles.reportIcon}
           />
           <Text style={styles.buttonText}>View Details</Text>
         </TouchableOpacity>
@@ -144,14 +146,14 @@ const CardMenu: React.FC<CardMenuProps> = ({
         <TouchableOpacity style={styles.button} onPress={handleUndoChanges}>
           <Image
             source={require('../assets/icons/card-menu/undo.png')}
-            style={{width: 18, height: 18, objectFit: 'contain'}}
+            style={styles.undoIcon}
           />
           <Text style={styles.buttonText}>Undo Last Change</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleRemoveCard}>
           <Image
             source={require('../assets/icons/card-menu/delete.png')}
-            style={{width: 18, height: 18}}
+            style={styles.deleteIcon}
           />
           <Text style={styles.buttonText}>Delete Subject</Text>
         </TouchableOpacity>
@@ -177,6 +179,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1000000,
   },
+  editIcon: {width: 20, height: 20},
+  reportIcon: {width: 20, height: 20, objectFit: 'contain'},
+  undoIcon: {width: 18, height: 18, objectFit: 'contain'},
+  deleteIcon: {width: 18, height: 18},
   button: {
     width: '100%',
     padding: 10,

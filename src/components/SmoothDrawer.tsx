@@ -1,16 +1,10 @@
 import React from 'react';
-import {View, StyleSheet, Button} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {Animated} from 'react-native';
 const SmoothDrawer = () => {
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={{
-          width: 100,
-          height: 100,
-          backgroundColor: 'violet',
-        }}
-      />
+      <Animated.View style={styles.animatedBox} />
     </View>
   );
 };
@@ -25,6 +19,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     backgroundColor: 'blue',
+  },
+  animatedBox: {
+    width: 100,
+    height: 100,
+    backgroundColor: 'violet',
   },
 });
 

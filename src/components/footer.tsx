@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
 type FooterProps = {
   navigate: (screen: string) => void;
 };
 const Footer: React.FC<FooterProps> = ({navigate}) => {
-  const [activeNum, setActiveNum] = useState(5);
+  // const [activeNum, setActiveNum] = useState(5);
   return (
     <View style={styles.navigationBar}>
       <View style={styles.footer}>
@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
     bottom: 8,
     left: 0,
     backgroundColor: '#27272A',
-
   },
   footer: {
     width: '95%',
