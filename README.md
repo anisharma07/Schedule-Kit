@@ -13,6 +13,8 @@ Designed on Figma ([link](https://www.figma.com/design/k0Mi0n6jNWGK5l1Jss1jbb/Un
 - 🔔 **Reminders & Alerts**: Set alerts to remind you of low attendance.
 - ☁️ **Cloud Sync (Optional)**: Sync data across multiple devices.
 
+## Download at: [apk link](https://github.com/anisharma07/React-native-attendance-app/releases/download/v1.0.4/app-release.apk)
+
 ## App Screenshot
 
 | ![Image 1](./src/assets/screenshots/ss1.jpeg) | ![Image 2](./src/assets/screenshots/ss3.jpeg) | ![Image 3](./src/assets//screenshots/ss4.jpeg) |
