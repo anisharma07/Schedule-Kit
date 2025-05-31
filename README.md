@@ -9,7 +9,7 @@ A **React Native** application to track and manage attendance efficiently. The a
 ## Features
 
 - 📊 **Track Attendance**: Easily mark attendance for different classes or events.
-- 🤖 **AI Scheduling**: Generate your time table instantly and optimize your schedule.
+- 🤖 **AI Scheduling**: Generate your time table instantly and optimize your schedule.(under development)
 
 - 📆 **Timetable Management**: Create, edit, and manage class or event timetables effortlessly.
 - 🔔 **Reminders & Alerts**: Set alerts to remind you of low attendance.
