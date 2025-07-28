@@ -27,7 +27,8 @@ on:
         default: true
         type: boolean
   schedule:
-    # Run every 6 hours (at 0:00, 6:00, 12:00, 18:00 UTC)
+    # Run every 6 hours starting from 2:00 AM UTC (02:00, 08:00, 14:00, 20:00)
+    - cron: "0 2,8,14,20 * * *"
     - cron: "0 */6 * * *"
 
 jobs:
@@ -1380,15 +1381,51 @@ jobs:
 
           echo "🚀 Starting Claude AI Code Audit..."
           python3 claude_auditor.py
-          import random
-          from datetime import datetime
-          from botocore.config import Config
-          from github import Github
-          import re
 
-          class ClaudeCodeAuditor:
-              def __init__(self):
-                  self.github_token = os.environ['GITHUB_TOKEN']
+      - name: Cleanup on failure
+        if: failure()
+        continue-on-error: true
+        run: |
+          echo "🧹 Cleaning up audit artifacts on failure..."
+
+          # Clean up any temporary files
+          rm -rf claude_auditor.py 2>/dev/null || true
+          rm -rf *.txt 2>/dev/null || true
+
+          # Try to delete the audit branch if it was created
+          AUDIT_BRANCH="${{ steps.repo-info.outputs.audit_branch }}"
+          if [[ -n "$AUDIT_BRANCH" ]]; then
+            echo "🗑️ Attempting to clean up audit branch: $AUDIT_BRANCH"
+            git push origin --delete "$AUDIT_BRANCH" 2>/dev/null || echo "Branch cleanup skipped"
+          fi
+
+          echo "🔄 Cleanup completed"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "🔍 Claude AI Code Audit Summary"
+          echo "==============================="
+          echo "Audit Scope: ${{ env.AUDIT_SCOPE }}"
+          echo "Include Suggestions: ${{ env.INCLUDE_SUGGESTIONS }}"
+          echo "Target Repository: ${{ steps.repo-info.outputs.target_repo_owner }}/${{ steps.repo-info.outputs.target_repo_name }}"
+          echo "Target Branch: ${{ steps.repo-info.outputs.target_branch }}"
+          echo "Audit Branch: ${{ steps.repo-info.outputs.audit_branch }}"
+          echo ""
+          echo "📋 The audit includes:"
+          echo "  🔐 Security vulnerabilities and best practices"
+          echo "  🛠️ Code quality and maintainability analysis"
+          echo "  🚀 Performance optimization opportunities"
+          echo "  🧹 Dead code and cleanup recommendations"
+          echo ""
+          echo "📄 Check the pull request for the detailed audit report!"
+
+          # Show job status
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✅ Workflow completed successfully!"
+          else
+            echo "⚠️ Workflow completed with issues. Check logs above for details."
+          fi
                   self.bedrock_client = self.get_bedrock_client()
                   self.model_id = os.environ.get('AWS_BEDROCK_MODEL_ID', 'us.anthropic.claude-3-5-sonnet-20241022-v2:0')
                   self.audit_scope = os.environ.get('AUDIT_SCOPE', 'all')
