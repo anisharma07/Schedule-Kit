@@ -1,6 +1,6 @@
 {
-  "name": "AttendancePlanner",
-  "version": "0.0.2",
+  "name": "myreactnativeapp",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

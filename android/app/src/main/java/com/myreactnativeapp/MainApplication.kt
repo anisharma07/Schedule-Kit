@@ -1,4 +1,4 @@
-package com.attendanceplanner
+package com.myreactnativeapp
 
 import android.app.Application
 import com.facebook.react.PackageList

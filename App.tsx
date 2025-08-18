@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react';
-import 'react-native-reanimated';
 
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import Toast from 'react-native-toast-message';
