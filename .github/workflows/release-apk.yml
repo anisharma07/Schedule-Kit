@@ -307,6 +307,35 @@ jobs:
           keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
           EOF
 
+          # Create google-services.json from secrets
+          if [ -n "${{ secrets.GOOGLE_SERVICES_BASE64 }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > android/app/google-services.json
+            echo "✅ Google Services configuration created"
+          else
+            echo "⚠️ GOOGLE_SERVICES_BASE64 secret not found. Using template or existing file..."
+            if [ ! -f "android/app/google-services.json" ]; then
+              echo "❌ No google-services.json found and no secret provided. Build will fail."
+              echo "Please add GOOGLE_SERVICES_BASE64 secret to your repository secrets."
+              exit 1
+            fi
+          fi
+
+      - name: 🌍 Setup Environment Variables
+        if: steps.check-existing.outputs.skip-build == 'false'
+        run: |
+          echo "🔧 Setting up environment variables..."
+
+          # Create .env file for the build process
+          cat > .env << EOF
+          GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          GOOGLE_GEMINI_API_KEY=${{ secrets.GOOGLE_GEMINI_API_KEY }}
+          EOF
+
+          echo "✅ Environment variables configured"
+          echo "📝 Created .env file with:"
+          echo "   - GOOGLE_WEB_CLIENT_ID (masked)"
+          echo "   - GOOGLE_GEMINI_API_KEY (masked)"
+
       - name: � Generate React Native Codegen
         if: steps.check-existing.outputs.skip-build == 'false'
         run: |
@@ -441,6 +470,8 @@ jobs:
           # Remove sensitive files
           rm -f android/app/release-key.jks
           rm -f android/keystore.properties
+          rm -f android/app/google-services.json
+          rm -f .env
           echo "🧹 Cleanup completed"
 
       - name: 📱 Post-Release Summary

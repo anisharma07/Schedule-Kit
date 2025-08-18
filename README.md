@@ -15,7 +15,6 @@ A **React Native** application to track and manage attendance efficiently. The a
 - 🔔 **Reminders & Alerts**: Set alerts to remind you of low attendance.
 - ☁️ **Cloud Sync (Optional)**: Sync data across multiple devices.
 
-
 ## App Screenshot
 
 | ![Image 1](./src/assets/screenshots/ss1.jpeg) | ![Image 2](./src/assets/screenshots/ss3.jpeg) | ![Image 3](./src/assets//screenshots/ss4.jpeg) |
@@ -103,6 +102,56 @@ Ensure you have the following installed:
        classpath("com.google.gms:google-services:4.3.10") // Make sure it's the latest version
    }
    ```
+
+##### Step 5: GitHub Actions Deployment Setup
+
+If you want to use the automated APK release GitHub Actions workflow, you need to add the following secrets to your GitHub repository:
+
+1. Go to your GitHub repository **Settings > Secrets and variables > Actions**.
+2. Add the following **Repository secrets**:
+
+**Keystore Secrets:**
+
+- `RELEASE_KEYSTORE_BASE64`: Base64 encoded keystore file (`.jks`)
+- `RELEASE_STORE_PASSWORD`: Keystore store password
+- `RELEASE_KEY_ALIAS`: Key alias name
+- `RELEASE_KEY_PASSWORD`: Key password
+
+**Firebase Secrets:**
+
+- `GOOGLE_SERVICES_BASE64`: Base64 encoded `google-services.json` file
+
+**Environment Secrets:**
+
+- `GOOGLE_WEB_CLIENT_ID`: Google Web Client ID for authentication
+- `GOOGLE_GEMINI_API_KEY`: Google Gemini API key for AI features
+
+**To create base64 encoded files:**
+
+**Quick Method (Recommended):**
+
+```bash
+# Run the helper script from project root
+./scripts/generate-secrets.sh
+```
+
+**Manual Method:**
+
+```bash
+# For keystore file
+base64 -i your-keystore-file.jks | pbcopy  # macOS
+base64 -i your-keystore-file.jks | xclip -selection clipboard  # Linux
+
+# For google-services.json
+base64 -i android/app/google-services.json | pbcopy  # macOS
+base64 -i android/app/google-services.json | xclip -selection clipboard  # Linux
+```
+
+**Workflow Triggers:**
+
+- The workflow triggers when a PR is merged to `main` with a `release` label
+- Or when a PR title contains `[release]`
+- Version bumping is automatic based on PR title: `[major]`, `[minor]`, or defaults to patch
 
 ## Tech Stack
 
